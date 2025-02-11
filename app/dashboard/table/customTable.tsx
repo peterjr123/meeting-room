@@ -1,16 +1,10 @@
 import React, { useReducer, useState } from "react";
 import { Table } from "antd";
-import { convertToDatasource, getTableColumns } from "../../lib/data";
+import { convertToDatasource, getTableColumns } from "../../lib/data/tableData";
 import { compareTime } from "@/app/lib/utils";
 import { ReservationInfo } from "@/app/dashboard/reservation";
+import { TableReservationData } from "@/app/lib/data/reservationData";
 // 예약 데이터
-const reservations = [
-  { room: "room1", start: "10:00", duration: 30 }, // 10:00 ~ 10:30 (3열 병합)
-  { room: "room2", start: "10:20", duration: 40 }, // 10:20 ~ 11:00 (4열 병합)
-  { room: "room3", start: "10:40", duration: 30 }, // 10:40 ~ 11:10 (3열 병합, 11:00 이후는 표시되지 않음)
-  { room: "room1", start: "11:00", duration: 20 }, // 11:00 ~ 11:20 (2열 병합)
-];
-
 type SelectedCell = {
   time: string,
   room: string,
@@ -30,8 +24,9 @@ const initialCellStatus: CellStatus = {
     hoveringCell: {...initialValue},
 }
 
-export default function CustomTable({ setReservationInfo }:
-  {setReservationInfo: React.Dispatch<React.SetStateAction<ReservationInfo>>}
+export default function CustomTable({ setReservationInfo, reservedData }:
+  {setReservationInfo: React.Dispatch<React.SetStateAction<ReservationInfo>>, 
+    reservedData: TableReservationData[] }
 ) {
   const [cellState, dispatch] = useReducer(cellStateReducer, initialCellStatus);
 
@@ -99,7 +94,7 @@ export default function CustomTable({ setReservationInfo }:
 
   return (
     <Table
-      dataSource={convertToDatasource(reservations)}
+      dataSource={convertToDatasource(reservedData)}
       columns={getTableColumns(CellComponent)}
       pagination={false}
       bordered

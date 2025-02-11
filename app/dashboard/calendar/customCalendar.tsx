@@ -4,43 +4,13 @@ import type { BadgeProps, CalendarMode } from 'antd';
 import { Badge } from 'antd';
 import CustomCalendarHeader from "./customCalendarHeader";
 import { useState } from "react";
+import { CalendarNotificationData } from "@/app/lib/data/reservationData";
 
-const notifications = [
-    { date: "2025-02-25", text: "reserved" },
-    { date: "2025-02-10", text: "meeting1" },
-    { date: "2025-02-10", text: "meeting2" },
-    { date: "2025-02-10", text: "meeting3" },
-    { date: "2025-02-10", text: "meeting4" },
-    { date: "2025-02-10", text: "meeting5" },
-    { date: "2025-02-10", text: "meeting6" },
-    { date: "2025-02-15", text: "deadline1" },
-    { date: "2025-02-15", text: "deadline2" },
-    { date: "2025-02-15", text: "deadline3" },
-    { date: "2025-02-15", text: "deadline4" },
-    { date: "2025-02-15", text: "deadline5" },
-    { date: "2025-02-15", text: "deadline6" },
-    { date: "2025-02-15", text: "deadline7" },
-    { date: "2025-02-15", text: "deadline8" },
-
-  ];
   
-  const getListData = (value: Dayjs) => {
-    // 현재 날짜를 YYYY-MM-DD 형식의 문자열로 변환
-    const dateString = value.format("YYYY-MM-DD");
-  
-    // 해당 날짜와 일치하는 데이터를 필터링하여 리스트 구성
-    const listData = notifications
-      .filter((item) => item.date === dateString)
-      .map((item) => ({
-        type: 'warning', // 기본 타입을 warning으로 설정
-        content: item.text,
-      }));
-  
-    return listData;
-  };
   
 
-export default function Reservation() {
+export default function Reservation({reservedData, onChangeDate} 
+    : {reservedData: CalendarNotificationData[], onChangeDate: (date: Dayjs) => void}) {
     const [displayMode, setDisplayMode] = useState<string>("week");
     const [selectedDate, setSelectedDate] = useState<Dayjs>();
 
@@ -56,7 +26,22 @@ export default function Reservation() {
     }
     const onChangeSelectedDate = (date: Dayjs) => {
         setSelectedDate(date);
+        onChangeDate(date);
     }
+    const getListData = (value: Dayjs) => {
+        // 현재 날짜를 YYYY-MM-DD 형식의 문자열로 변환
+        const dateString = value.format("YYYY-MM-DD");
+      
+        // 해당 날짜와 일치하는 데이터를 필터링하여 리스트 구성
+        const listData = reservedData
+          .filter((item) => item.date === dateString)
+          .map((item) => ({
+            type: 'warning', // 기본 타입을 warning으로 설정
+            content: item.text,
+          }));
+          
+        return listData;
+      };
 
     const fullCellRender: CalendarProps<Dayjs>['fullCellRender'] = (current, info) => {
         const listData = getListData(current);

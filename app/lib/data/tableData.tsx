@@ -1,5 +1,5 @@
 import { TableProps } from "antd";
-
+import { TableReservationData } from "./reservationData";
 // 시간표 데이터 (10분 단위, 10:00 ~ 11:00)
 const startHour = 10;
 const endHour = 18;
@@ -22,13 +22,8 @@ type TableRow = {
      | string // key나 room이 string이므로 필요함
 }
 
-type Reservation = {
-    room: string,
-    start: string,
-    duration: number
-}
 
-const convertToDatasource = (reservations: Reservation[]) => {
+const convertToDatasource = (reservations: TableReservationData[]) => {
     const data: TableRow[] = rooms.map((room) => {
         const row: TableRow = {
             'key': room,
