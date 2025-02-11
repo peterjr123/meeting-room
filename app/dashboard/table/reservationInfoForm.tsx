@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { FormProps } from 'antd';
 import { Button, Checkbox, Form, Input } from 'antd';
 
@@ -20,9 +20,11 @@ export default function ReservationInfoForm({ formValues }:
     { formValues: FieldType }) {
     const [form] = Form.useForm();
 
-    form.setFieldsValue({
-        ...formValues
-    });
+    useEffect(() => {
+        form.setFieldsValue({
+            ...formValues
+        });
+    }, [formValues])
 
     return (
         <Form

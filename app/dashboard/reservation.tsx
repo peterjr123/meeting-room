@@ -5,10 +5,9 @@ import CustomTable from './table/customTable'
 import { Dayjs } from "dayjs";
 import CustomCalendar from "./calendar/customCalendar"
 import ReservationInfoForm from "./table/reservationInfoForm";
-import TestCalendar from "@/app/dashboard/calendar/testCalendar"
 import { useState } from "react";
 
-type ReservationInfo = {
+export type ReservationInfo = {
     startTime: string,
     endTime: string,
     room: string,
@@ -21,7 +20,7 @@ const initialValue: ReservationInfo = {
 
 export default function Reservation() {
     const [reservationInfo, setReservationInfo] = useState(initialValue);
-    
+
     return (
         <Flex className="h-full bg-white p-5" vertical gap='middle' >
             <Card title="select date">
