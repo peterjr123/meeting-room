@@ -1,9 +1,10 @@
 import React, { useReducer, useState } from "react";
 import { Table } from "antd";
 import { convertToDatasource, getTableColumns } from "../../lib/data/tableData";
-import { compareTime } from "@/app/lib/utils";
+import { compareTime, converToDuration } from "@/app/lib/utils";
 import { ReservationInfo } from "@/app/dashboard/reservation";
 import { TableReservationData } from "@/app/lib/data/reservationData";
+import { isTimeBetweenIncludeEdge } from "@/app/lib/utils";
 // 예약 데이터
 type SelectedCell = {
   time: string,
@@ -42,8 +43,12 @@ export default function CustomTable({ setReservationInfo, reservedData }:
     { children: React.ReactNode, time: string, room: string, reserved: boolean }) {
 
     const onSelectTime = () => {
+      // 이미 예약된 시간 위에 클릭하는 경우
+      if(isClickOnReservedCell(reservedData, time, room))
+        return;
+      
       // 시작 시간과 종료 시간을 모두 선택한 경우
-      if (isValidReservation(cellState.selectedStartCell, { time: time, room: room })) {
+      if (isValidReservation(cellState.selectedStartCell, { time: time, room: room }, reservedData)) {
         dispatch({
           type: 'confirm_reservation_time',
           time: time,
@@ -103,18 +108,36 @@ export default function CustomTable({ setReservationInfo, reservedData }:
   );
 }
 
+const isClickOnReservedCell = (reservedData: TableReservationData[], time: string, room: string): boolean => {
+  return reservedData.some((data) => {
+    return (data.room === room && isTimeBetweenIncludeEdge(data.start, data.duration, time))
+  });
+}
 
-const isValidReservation = (startCell: SelectedCell, endCell: SelectedCell) => {
+
+const isValidReservation = (startCell: SelectedCell, endCell: SelectedCell, reservedData: TableReservationData[]) => {
   // 1. 시작 시간보다 뒤에 있는 경우
   // 2. 시작 시간과 동일한 room인 경우
-  // TODO: 3. 다른 reservation time과 겹치지 않는 경우
   if (startCell.room === endCell.room && compareTime(startCell.time, endCell.time) < 0) {
-    return true;
+    // 3. 다른 reservation time과 겹치지 않는 경우
+    if(!isOverlapReservedData(startCell, endCell, reservedData)) {
+      return true;
+    }
   }
-
   return false;
 }
 
+// reservedData의 startTime이 startCell과 endCell 사이에 있는가?
+// reservedData의 duration을 고려하지 않아도 문제 없음. (문제가 발생하도록 startCell과 endCell을 선택하지 못하므로)
+const isOverlapReservedData = (startCell: SelectedCell, endCell: SelectedCell, reservedData: TableReservationData[]): boolean => {
+  return reservedData.some((data) => {
+    if(startCell.room !== data.room)
+      return false;
+    
+    const duration = converToDuration(startCell.time, endCell.time);
+    return isTimeBetweenIncludeEdge(startCell.time, duration, data.start);
+  });
+}
 
 const selectBgColor = (reserved: boolean, cellState: CellStatus, currentTime: string, current_room: string) => {
   let bgColor;

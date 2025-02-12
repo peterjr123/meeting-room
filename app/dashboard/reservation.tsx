@@ -8,6 +8,7 @@ import ReservationInfoForm from "./table/reservationInfoForm";
 import { useEffect, useMemo, useState } from "react";
 import { testData as fetchedReservationData, ReservationData as FetchedReservationData, ReservedData } from "../lib/data/reservationData";
 import { CalendarNotificationData, TableReservationData } from "../lib/data/reservationData";
+import { converToDuration } from "../lib/utils";
 
 // 사용자가 등록할 reservation 정보 type
 export type ReservationInfo = {
@@ -31,7 +32,7 @@ export default function Reservation() {
     const tableData: TableReservationData[] = useMemo(() => {
         return tableDataAdaptor(fetchedReservationData, selectedDate);
     }, [selectedDate])
-    
+
     function onChangeDate (selectedDate: Dayjs) {
         setSelectedDate(selectedDate);
     }
@@ -77,14 +78,3 @@ const tableDataAdaptor = (fetchedData: FetchedReservationData[], selectedDate: D
         })
 }
 
-const converToDuration = (startTime: string, endTime: string) => {
-    const parseTime = (time: string): number => {
-        const [hours, minutes] = time.split(":").map(Number);
-        return hours * 60 + minutes; // 총 분(minute)으로 변환
-    };
-
-    const minutes1 = parseTime(startTime);
-    const minutes2 = parseTime(endTime);
-
-    return minutes2 - minutes1;
-}

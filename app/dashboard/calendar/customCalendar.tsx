@@ -20,7 +20,7 @@ export default function Reservation({reservedData, onChangeDate}
             
             if(mode === "week") {
                 // 다시 이번주를 출력하도록 변경
-                setSelectedDate(dayjs());
+                onChangeSelectedDate(dayjs());
             }
         }
     }
