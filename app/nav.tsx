@@ -1,16 +1,14 @@
+'use client'
+
 import { Menu, MenuProps, Layout } from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import { UserOutlined, LogoutOutlined, LoginOutlined, FormOutlined } from "@ant-design/icons";
 import { SignedOut, SignedIn, SignInButton, SignUpButton, UserButton, useUser, SignOutButton } from "@clerk/nextjs";
-import { useState } from "react";
 
 
 
 type MenuItem = Required<MenuProps>['items'][number];
-
-
-
 
 export default function Nav() {
     const { isSignedIn } = useUser();

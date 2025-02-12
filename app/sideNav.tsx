@@ -1,3 +1,5 @@
+'use client'
+
 import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
@@ -72,7 +74,7 @@ const items: MenuItem[] = [
     },
 ];
 
-export default function DashboardSideNav() {
+export default function SideNav() {
     const onClick: MenuProps['onClick'] = (e) => {
         console.log('click ', e);
     };

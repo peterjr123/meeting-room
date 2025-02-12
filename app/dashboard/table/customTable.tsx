@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useReducer, useState } from "react";
 import { Table } from "antd";
 import { convertToDatasource, getTableColumns } from "../../lib/data/tableData";
@@ -41,7 +43,6 @@ export default function CustomTable({ setReservationInfo, reservedData }:
   // Table에 출력되는 cell
   function CellComponent({ children, time, room, reserved }:
     { children: React.ReactNode, time: string, room: string, reserved: boolean }) {
-
     const onSelectTime = () => {
       // 이미 예약된 시간 위에 클릭하는 경우
       if(isClickOnReservedCell(reservedData, time, room))

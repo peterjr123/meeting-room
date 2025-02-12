@@ -1,19 +1,9 @@
-'use client'
-
-import { Layout } from "antd";
+import { Layout, ClerkProvider, Header, Content, Sider } from '@/app/third-party-wrapper'
 import "./globals.css";
-import Nav from "./nav";
 import '@ant-design/v5-patch-for-react-19';
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from '@clerk/nextjs'
-
-const {Header, Content} = Layout
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import SideNav from './sideNav';
+import Nav from './nav';
 
 export default function RootLayout({
   children,
@@ -24,12 +14,23 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body>
-          <Layout>
-            <Header className="p-0">
-              <Nav></Nav>
-            </Header>
-            <Content className="h-[calc(100vh-4rem)]">{children}</Content>
-          </Layout>
+          <AntdRegistry>
+            <Layout>
+              <Header className="p-0 pl-0">
+                <Nav></Nav>
+              </Header>
+              <Content className="h-[calc(100vh-4rem)]">
+                <Layout className='h-full' hasSider>
+                  <Sider className='top-0 h-full'>
+                    <SideNav></SideNav>
+                  </Sider>
+                  <Content className='h-full overflow-auto'>
+                    {children}
+                  </Content>
+                </Layout>
+              </Content>
+            </Layout>
+          </AntdRegistry>
         </body>
       </html>
     </ClerkProvider>

@@ -25,3 +25,6 @@ body {
 .ant-table-tbody>tr>td {
   padding: 0 !important
 }
+.ant-layout-header {
+  padding: 0 !important;
+}
