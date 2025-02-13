@@ -1,12 +1,13 @@
 import { TableProps } from "antd";
 import { TableReservationData } from "./type";
 // 시간표 데이터 (10분 단위, 10:00 ~ 11:00)
-const startHour = 10;
+const startHour = 8;
 const endHour = 18;
 const timeSlots = Array.from({ length: (endHour-startHour)*6 }, (_, i) => ({
     key: i,
-    time: `${Math.floor(startHour + (i / 6))}:${(i % 6) !== 0 ? (i % 6) * 10 : '00'}`, // 10:00 ~ 11:50
+    time: `${Math.floor(startHour + (i / 6)).toString().padStart(2, '0')}:${(i % 6) !== 0 ? (i % 6) * 10 : '00'}`, // 10:00 ~ 11:50
 }));
+console.log(timeSlots)
 
 const rooms = ["room1", "room2", "room3"];
 
@@ -37,6 +38,7 @@ const convertToDatasource = (reservations: TableReservationData[]) => {
             );
 
             if (reservation) {
+
                 // 예약 시작 시간인 경우
                 const colSpan = reservation.duration / 10;
                 row[slot.time] = {

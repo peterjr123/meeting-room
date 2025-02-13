@@ -7,8 +7,8 @@ import CustomCalendar from "./calendar/customCalendar"
 import ReservationInfoForm from "./table/reservationInfoForm";
 import { useEffect, useMemo, useState } from "react";
 import { testData as fetchedReservationData } from "../lib/data/reservationData";
-import { CalendarNotificationData, TableReservationData, ReservationData as FetchedReservationData } from "../lib/data/type";
-import { converToDuration } from "../lib/utils";
+import { CalendarNotificationData, TableReservationData, ReservationData as FetchedReservationData, ReservationData } from "../lib/data/type";
+import { convertDayjsToString, converToDuration } from "../lib/utils";
 
 // 사용자가 등록할 reservation 정보 type
 export type ReservationInfo = {
@@ -22,19 +22,30 @@ const initialValue: ReservationInfo = {
     room: "please select on table"
 }
 
-export default function Reservation() {
+export default function Reservation({createReservationAction, reservedData}
+    : {createReservationAction:Function, reservedData: ReservationData[]}
+) {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
     const [reservationInfo, setReservationInfo] = useState(initialValue);
     // set db fetched data to state (just for initial rendering)
     const [calendarNotificationData, setCalendarNotificationData]
-        = useState<CalendarNotificationData[]>(calendarDataAdaptor(fetchedReservationData));
+        = useState<CalendarNotificationData[]>(calendarDataAdaptor(reservedData));
 
     const tableData: TableReservationData[] = useMemo(() => {
-        return tableDataAdaptor(fetchedReservationData, selectedDate);
+        return tableDataAdaptor(reservedData, selectedDate);
     }, [selectedDate])
 
     function onChangeDate (selectedDate: Dayjs) {
         setSelectedDate(selectedDate);
+    }
+
+    function onSubmitReservation (value: any) {
+        createReservationAction({
+            ...value,
+            date: convertDayjsToString(selectedDate),
+            user: "user",
+            text: "text"
+        })
     }
 
     return (
@@ -47,7 +58,7 @@ export default function Reservation() {
             </Card>
 
             <Card title="check information details">
-                <ReservationInfoForm formValues={reservationInfo}></ReservationInfoForm>
+                <ReservationInfoForm formValues={reservationInfo} onSubmit={onSubmitReservation}></ReservationInfoForm>
             </Card>
         </Flex>
     );

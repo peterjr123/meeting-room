@@ -10,16 +10,8 @@ export type FieldType = {
     room?: string;
 };
 
-const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    console.log('Success:', values);
-};
-
-const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-    console.log('Failed:', errorInfo);
-};
-
-export default function ReservationInfoForm({ formValues }: 
-    { formValues: FieldType }) {
+export default function ReservationInfoForm({ formValues, onSubmit }: 
+    { formValues: FieldType, onSubmit: Function }) {
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -27,6 +19,10 @@ export default function ReservationInfoForm({ formValues }:
             ...formValues
         });
     }, [formValues])
+
+    const onPressSubmit = (values: any) => {
+        onSubmit(values);
+    } 
 
     return (
         <Form
@@ -36,8 +32,7 @@ export default function ReservationInfoForm({ formValues }:
             style={{ maxWidth: 600 }}
             form={form}
             initialValues={{ ...formValues }}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
+            onFinish={onPressSubmit}
             autoComplete="off"
         >
             <Form.Item<FieldType>
