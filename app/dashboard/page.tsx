@@ -5,9 +5,6 @@ import { ReservationRequestData } from "../lib/data/type";
 import { redirect } from "next/navigation";
 
 export default async function dashboard() {
-    const { userId, redirectToSignIn } = await auth();
-    if (!userId) return redirectToSignIn();
-
     const reservations = await fetchReservationData();
 
     async function createReservation(data: ReservationRequestData) {

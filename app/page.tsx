@@ -2,9 +2,6 @@ import { auth } from "@clerk/nextjs/server";
 import Nav from "./nav";
 import { Button, Card, Divider, Flex } from "antd";
 export default async function Home() {
-  const { userId, redirectToSignIn } = await auth();
-  if (!userId) return redirectToSignIn();
-
   return (
     <div className="flex justify-center">
       <Flex className="max-w-[80rem] w-full" vertical gap="middle">
