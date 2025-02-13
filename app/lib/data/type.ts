@@ -13,8 +13,10 @@ export type ReservedData = {
 // 예약 요청 데이터에 대한 타입
 export type ReservationRequestData = {
     date: DateString,
-    user: string,
-    text: string,
+    userId: string,
+    userName: string,
+    purpose: string,
+    details: string,
     startTime: TimeString,
     endTime: TimeString,
     room: MeetingRoom
@@ -24,12 +26,13 @@ export type ReservationRequestData = {
 export type CalendarReservedData = {
     id: number,
     date: DateString,
-    text: string,
+    purpose: string,
 }
 
 // Table에서 사용하는 데이터 타입
 export type TableReservedData = {
     id: number,
+    userName: string,
     room: MeetingRoom,
     startTime: TimeString,
     duration: number,
@@ -49,8 +52,9 @@ export type SelectedTableData = {
 }
 export type ReservationFormData = {
     date: DateString,
-    user: string,
-    text: string,
+    userName: string,
+    purpose: string,
+    details: string,
     startTime: TimeString | ReservationFormPlaceholder["startTime"],
     endTime: TimeString | ReservationFormPlaceholder["endTime"],
     room: MeetingRoom | ReservationFormPlaceholder["room"],

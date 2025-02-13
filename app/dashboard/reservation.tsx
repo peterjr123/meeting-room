@@ -17,15 +17,16 @@ const initialValue: ReservationFormPlaceholder = {
     room: "please select on table",
 }
 
-export default function Reservation({createReservationAction, reservedData}
-    : {createReservationAction:(requestData: ReservationRequestData) => void, reservedData: ReservedData[]}
+export default function Reservation({ userName, createReservationAction, reservedData}
+    : { userName:string, createReservationAction:(requestData: ReservationFormData) => void, reservedData: ReservedData[]}
 ) {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
     const [reservationInfo, setReservationInfo] = useState<ReservationFormData>({
         ...initialValue,
         date: convertDayjsToDateString(selectedDate),
-        user: "user",
-        text: "",
+        userName: userName,
+        purpose: "",
+        details: "",
     });
 
     // table data는 calendar가 날짜를 선택할 때마다 변경된다.
@@ -37,13 +38,8 @@ export default function Reservation({createReservationAction, reservedData}
         setSelectedDate(selectedDate);
     }
 
-    function onSubmitReservation (value: any) {
-        createReservationAction({
-            ...value,
-            date: convertDayjsToDateString(selectedDate),
-            user: "user",
-            text: "text"
-        })
+    function onSubmitReservation (value: ReservationFormData) {
+        createReservationAction(value)
     }
 
     function onSelectTableData(data: SelectedTableData) {
@@ -77,7 +73,7 @@ const calendarDataAdaptor = (fetchedData: ReservedData[]): CalendarReservedData[
         return {
             id: data.id,
             date: data.date,
-            text: data.text,
+            purpose: data.purpose,
         }
     })
 }
@@ -89,6 +85,7 @@ const tableDataAdaptor = (fetchedData: ReservedData[], selectedDate: Dayjs): Tab
         .map((data) => {
             return {
                 id: data.id,
+                userName: data.userName,
                 room: data.room,
                 startTime: data.startTime,
                 duration: converToDuration(data.startTime, data.endTime),

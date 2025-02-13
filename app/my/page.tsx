@@ -1,16 +1,24 @@
 import { Flex, Card, Divider, Button, Modal, Popconfirm } from "antd"
-import { Badge, Descriptions } from 'antd';
-import type { DescriptionsProps } from 'antd';
-import { fetchReservationData } from "../lib/data/api";
+
+import { deleteReservationData, fetchReservationData, getCurrentUserInfo } from "../lib/data/api";
 import { ReservedData } from "../lib/data/type";
+import { redirect } from "next/navigation";
+import { ReservationInfo } from "./reservationInfo";
 
 export default async function MyReservationPage() {
     const reservedData = await fetchReservationData();
-    const filteredData = filterMyReservedData(reservedData);
+    const user = await getCurrentUserInfo();
+    if (!user) redirect("/");
+    const filteredData = filterMyReservedData(reservedData, user.userId);
 
-    async function onDeleteReserved () {
+    async function onDeleteReserved(reservedData: ReservedData) {
         'use server'
-        console.log('delete')
+        const result = await deleteReservationData(reservedData.id);
+        if (result)
+            redirect(`/result/delete?type=success&${result.purpose}`)
+        else
+            redirect(`/result/delete?type=failed`)
+
     }
     return (
         <Card title="예약 현황">
@@ -19,7 +27,7 @@ export default async function MyReservationPage() {
                     filteredData.map((data, index) => {
                         return (
                             <li key={index}>
-                                <ReservationInfo reservedData={data} onDeleteReserved={onDeleteReserved}/>
+                                <ReservationInfo reservedData={data} onDeleteReserved={onDeleteReserved} />
                                 <Divider />
                             </li>
                         )
@@ -30,56 +38,9 @@ export default async function MyReservationPage() {
     )
 }
 
-function ReservationInfo({ reservedData, onDeleteReserved }
-    : { reservedData: ReservedData, onDeleteReserved: () => void }) {
-    const items: DescriptionsProps['items'] = [
-        {
-            key: '1',
-            label: 'Date',
-            children: reservedData.date,
-            span: 2,
-        },
-        {
-            key: '2',
-            label: 'Start Time',
-            children: reservedData.startTime,
-        },
-        {
-            key: '3',
-            label: 'End Time',
-            children: reservedData.endTime,
-        },
-        {
-            key: '5',
-            label: 'Purpose',
-            children: reservedData.text,
-            span: 2,
-        },
-    ]
-    return (
-        <div className="flex flex-col max-w-screen-lg ">
-            <Descriptions
-                title="Title"
-                bordered
-                items={items}
-                column={2}
-            />
-            <Popconfirm className="w-auto self-end mt-4" 
-            title="예약 취소" 
-            description="정말로 예약을 취소하시겠습니까?"
-            onConfirm={onDeleteReserved}
-            >
-                <Button  type="primary">
-                    cancel
-                </Button>
-            </Popconfirm>
 
-        </div>
 
-    );
-}
-
-function filterMyReservedData(reservedData: ReservedData[]) {
+function filterMyReservedData(reservedData: ReservedData[], userId: string) {
+    return reservedData.filter((data) => data.userId === userId)
     // TODO: filter datas
-    return reservedData;
 }

@@ -60,7 +60,7 @@ const filterByDate = (date: Dayjs, dataList: CalendarReservedData[]): CalendarRe
 const converToNotificationFormat = (dataList: CalendarReservedData[]) => {
     return dataList.map((item) => ({
         type: 'warning',
-        content: item.text,
+        content: item.purpose,
     }));
 }
 

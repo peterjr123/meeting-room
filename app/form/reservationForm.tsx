@@ -48,10 +48,13 @@ export default function ReservationForm({ onPressSubmit, formValues }
             <Item label="room" name="room">
                 <Input readOnly />
             </Item>
-            <Item label="user" name="user">
+            <Item label="user" name="userName">
                 <Input readOnly />
             </Item>
-            <Item label="purpose" name="text">
+            <Item label="purpose" name="purpose">
+                <Input placeholder="enter the text..." />
+            </Item>
+            <Item label="details" name="details">
                 <TextArea placeholder="enter the text..." style={{ resize: 'none', height: 120 }} />
             </Item>
             <Item className="float-end" label={null}>

@@ -18,7 +18,7 @@ export default function ReservationResultPage() {
                     <p>{`시간: ${searchParams.get("startTime")} ~ ${searchParams.get("endTime")}`}</p>
                 </div>}
                 extra={[
-                    <Link href="/profile">
+                    <Link href="/my">
                         <Button type="primary" key="confirm">
                             Confirm
                         </Button>

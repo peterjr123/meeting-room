@@ -36,7 +36,6 @@ export default function CustomTable({ onSelectReservation, reservedData }:
   }
 ) {
   const [cellState, dispatch] = useReducer(cellStateReducer, initialCellStatus);
-
   // 시간대 선택이 완료된 경우에 true
   const isOnReservationStage = () => {
     if (cellState.selectedEndCell.room === initialValue.room)

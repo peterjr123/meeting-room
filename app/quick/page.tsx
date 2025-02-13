@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { createReservationData, fetchReservationData } from "../lib/data/api";
+import { createReservationData, fetchReservationData, getCurrentUserInfo } from "../lib/data/api";
 import { ReservationRequestData, ReservedData } from "../lib/data/type";
 import { convertDayjsToDateString, convertDayjsToTimeString } from "../lib/utils";
 import { Alert } from "antd";
@@ -8,19 +8,26 @@ import { redirect } from "next/navigation";
 
 export default async function QuickPage() {
     const reservations = await fetchReservationData();
+    const user = await getCurrentUserInfo();
+    if(!user) return redirect("/");
+    
     const possibilities = possibleRerservationData(reservations);
-    // const possibilities = []
+    if(possibilities.length !== 0) {
+        possibilities[0].userId = user.userId;
+        possibilities[0].userName = user.userName;
+    }
+
 
     async function createReservation(reservationData: ReservationRequestData) {
         'use server'
         const result = await createReservationData(reservationData);
         if (!result) {
             // validation failed
-            redirect(`/quick/result?type=failed`)
+            redirect(`/result?type=failed`)
         }
         else {
             // success
-            redirect(`/quick/result?type=success&${toPathParams(reservationData)}`)
+            redirect(`/result?type=success&${toPathParams(reservationData)}`)
         }
 
         // TODO: do redirect with path params
@@ -58,11 +65,13 @@ function possibleRerservationData(reservationData: ReservedData[]): ReservationR
         // 현재 시간부터 1시간 뒤까지 각 room에 대한 ReservationData 생성
         return {
             date: convertDayjsToDateString(now),
-            user: 'user',
+            userId: "",
+            userName: "",
             startTime: convertDayjsToTimeString(startTime),
             endTime: convertDayjsToTimeString(startTime.add(1, "hour")),
             room: room,
-            text: "",
+            purpose: "",
+            details: "",    
         }
     })
     return possibilities.filter((possibility) => {

@@ -9,8 +9,12 @@ const { Item } = Form;
 export default function QuickReservationForm({reservationData, onSubmit}: 
     {reservationData:ReservationRequestData, onSubmit: (data: ReservationRequestData) => void}
 ) {
+    console.log(reservationData)
     const onPressSubmit = (values: any) => {
-        onSubmit(values)
+        onSubmit({
+            ...values,
+            userId: reservationData.userId
+        })
     } 
     return (
         <Card title="Quick Reservation">
