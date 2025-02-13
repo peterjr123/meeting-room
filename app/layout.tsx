@@ -24,7 +24,7 @@ export default function RootLayout({
                   <Sider className='top-0 h-full'>
                     <SideNav></SideNav>
                   </Sider>
-                  <Content className='h-full overflow-auto'>
+                  <Content className='w-fit h-full overflow-auto bg-white' style={{padding: '1.25rem'}} >
                     {children}
                   </Content>
                 </Layout>

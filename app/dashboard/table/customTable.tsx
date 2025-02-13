@@ -5,7 +5,7 @@ import { Table } from "antd";
 import { convertToDatasource, getTableColumns } from "../../lib/data/tableData";
 import { compareTime, converToDuration } from "@/app/lib/utils";
 import { ReservationInfo } from "@/app/dashboard/reservation";
-import { TableReservationData } from "@/app/lib/data/reservationData";
+import { TableReservationData } from "@/app/lib/data/type";
 import { isTimeBetweenIncludeEdge } from "@/app/lib/utils";
 // 예약 데이터
 type SelectedCell = {

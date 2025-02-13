@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 function compareTime(time1: string, time2: string) {
     const minutes1 = toMinutes(time1);
     const minutes2 = toMinutes(time2);
@@ -17,7 +19,6 @@ function isTimeBetweenIncludeEdge(startTime: string, duration: number, targetTim
     console.log(startMinutes, targetMinutes, endMinutes)
     return targetMinutes >= startMinutes && targetMinutes < endMinutes;
   };
-  
 function toMinutes(time: string): number {
   const [hours, minutes] = time.split(":").map(Number);
   return hours * 60 + minutes; // 총 분(minute)으로 변환
@@ -30,6 +31,10 @@ function converToDuration (startTime: string, endTime: string): number {
   return minutes2 - minutes1;
 }
 
-export {compareTime, isTimeBetweenIncludeEdge, converToDuration}
+function convertDayjsToString(dayjs: Dayjs): string {
+  return dayjs.format("YYYY-MM-DD");
+}
+
+export {compareTime, toMinutes, isTimeBetweenIncludeEdge, converToDuration, convertDayjsToString}
 
 

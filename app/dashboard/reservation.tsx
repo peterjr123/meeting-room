@@ -6,8 +6,8 @@ import dayjs, { Dayjs } from "dayjs";
 import CustomCalendar from "./calendar/customCalendar"
 import ReservationInfoForm from "./table/reservationInfoForm";
 import { useEffect, useMemo, useState } from "react";
-import { testData as fetchedReservationData, ReservationData as FetchedReservationData, ReservedData } from "../lib/data/reservationData";
-import { CalendarNotificationData, TableReservationData } from "../lib/data/reservationData";
+import { testData as fetchedReservationData } from "../lib/data/reservationData";
+import { CalendarNotificationData, TableReservationData, ReservationData as FetchedReservationData } from "../lib/data/type";
 import { converToDuration } from "../lib/utils";
 
 // 사용자가 등록할 reservation 정보 type

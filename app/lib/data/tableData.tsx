@@ -1,5 +1,5 @@
 import { TableProps } from "antd";
-import { TableReservationData } from "./reservationData";
+import { TableReservationData } from "./type";
 // 시간표 데이터 (10분 단위, 10:00 ~ 11:00)
 const startHour = 10;
 const endHour = 18;

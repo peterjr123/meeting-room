@@ -4,7 +4,7 @@ import { Calendar, CalendarProps } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import CustomCalendarHeader from "./customCalendarHeader";
 import { useState } from "react";
-import { CalendarNotificationData } from "@/app/lib/data/reservationData";
+import { CalendarNotificationData } from "@/app/lib/data/type";
 import CalendarCell from "./customCalendarCell";
   
 
