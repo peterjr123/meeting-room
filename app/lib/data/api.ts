@@ -1,9 +1,9 @@
-import { ReservationData } from "./type";
+import { ReservationRequestData, ReservedData } from "./type";
 
 const API_BASE_URL = process.env.API_BASE_URL; // FastAPI 서버 주소
 
 // 모든 예약 조회
-export async function fetchReservationData(): Promise<ReservationData[]> {
+export async function fetchReservationData(): Promise<ReservedData[]> {
   const response = await fetch(`${API_BASE_URL}/reservations/`);
   if (!response.ok) {
     throw new Error("Failed to fetch reservations");
@@ -12,7 +12,7 @@ export async function fetchReservationData(): Promise<ReservationData[]> {
 }
 
 // 새로운 예약 생성
-export async function createReservationData(reservation: ReservationData) {
+export async function createReservationData(reservation: ReservationRequestData) {
   const response = await fetch(`${API_BASE_URL}/reservations/`, {
     method: "POST",
     headers: {

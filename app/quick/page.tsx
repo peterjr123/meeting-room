@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { createReservationData, fetchReservationData } from "../lib/data/api";
-import { ReservationData } from "../lib/data/type";
-import { convertDayjsToString } from "../lib/utils";
+import { ReservationRequestData, ReservedData } from "../lib/data/type";
+import { convertDayjsToDateString, convertDayjsToTimeString } from "../lib/utils";
 import { Alert } from "antd";
 import QuickReservationForm from "./quickReservationForm";
 import { redirect } from "next/navigation";
@@ -11,7 +11,7 @@ export default async function QuickPage() {
     const possibilities = possibleRerservationData(reservations);
     // const possibilities = []
 
-    async function createReservation(reservationData: ReservationData) {
+    async function createReservation(reservationData: ReservationRequestData) {
         'use server'
         const result = await createReservationData(reservationData);
         if (!result) {
@@ -48,20 +48,19 @@ export default async function QuickPage() {
     );
 }
 
-function possibleRerservationData(reservationData: ReservationData[]): ReservationData[] {
+function possibleRerservationData(reservationData: ReservedData[]): ReservationRequestData[] {
     const now = dayjs();
     const rooms = ["room1", "room2", "room3"]
     const currentMinutes = Math.floor(now.minute() / 10) * 10;
     const startTime = now.minute(currentMinutes).second(0);
     // 먼저 템플릿 생성
-    const possibilities = rooms.map((room) => {
+    const possibilities: ReservationRequestData[] = rooms.map((room) => {
         // 현재 시간부터 1시간 뒤까지 각 room에 대한 ReservationData 생성
         return {
-            id: -1,
-            date: convertDayjsToString(now),
+            date: convertDayjsToDateString(now),
             user: 'user',
-            startTime: startTime.format("HH:mm"),
-            endTime: startTime.add(1, "hour").format("HH:mm"),
+            startTime: convertDayjsToTimeString(startTime),
+            endTime: convertDayjsToTimeString(startTime.add(1, "hour")),
             room: room,
             text: "",
         }
@@ -76,11 +75,11 @@ function possibleRerservationData(reservationData: ReservationData[]): Reservati
     });
 }
 
-function toPathParams(reservationData: ReservationData) {
+function toPathParams(requestData: ReservationRequestData) {
     const params = {
-        date: reservationData.date,
-        startTime: reservationData.startTime,
-        endTime: reservationData.endTime
+        date: requestData.date,
+        startTime: requestData.startTime,
+        endTime: requestData.endTime
     };
 
     return Object.keys(params)

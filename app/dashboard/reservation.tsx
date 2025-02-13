@@ -4,34 +4,32 @@ import { Calendar, CalendarProps, Card, Divider, Flex, Table, TableProps } from 
 import CustomTable from './table/customTable'
 import dayjs, { Dayjs } from "dayjs";
 import CustomCalendar from "./calendar/customCalendar"
-import ReservationInfoForm from "./table/reservationInfoForm";
-import { useEffect, useMemo, useState } from "react";
-import { testData as fetchedReservationData } from "../lib/data/reservationData";
-import { CalendarNotificationData, TableReservationData, ReservationData as FetchedReservationData, ReservationData } from "../lib/data/type";
-import { convertDayjsToString, converToDuration } from "../lib/utils";
+import {  useMemo, useState } from "react";
+import { convertDayjsToDateString, converToDuration } from "../lib/utils";
+import { ReservedData, CalendarReservedData, TableReservedData, ReservationFormData, ReservationFormPlaceholder, SelectedTableData, ReservationRequestData } from "../lib/data/type";
+import ReservationForm from "../form/reservationForm";
 
 // 사용자가 등록할 reservation 정보 type
-export type ReservationInfo = {
-    startTime: string,
-    endTime: string,
-    room: string,
-}
-const initialValue: ReservationInfo = {
+
+const initialValue: ReservationFormPlaceholder = {
     startTime: "please select on table",
     endTime: "please select on table",
-    room: "please select on table"
+    room: "please select on table",
 }
 
 export default function Reservation({createReservationAction, reservedData}
-    : {createReservationAction:Function, reservedData: ReservationData[]}
+    : {createReservationAction:(requestData: ReservationRequestData) => void, reservedData: ReservedData[]}
 ) {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
-    const [reservationInfo, setReservationInfo] = useState(initialValue);
-    // set db fetched data to state (just for initial rendering)
-    const [calendarNotificationData, setCalendarNotificationData]
-        = useState<CalendarNotificationData[]>(calendarDataAdaptor(reservedData));
+    const [reservationInfo, setReservationInfo] = useState<ReservationFormData>({
+        ...initialValue,
+        date: convertDayjsToDateString(selectedDate),
+        user: "user",
+        text: "",
+    });
 
-    const tableData: TableReservationData[] = useMemo(() => {
+    // table data는 calendar가 날짜를 선택할 때마다 변경된다.
+    const tableData: TableReservedData[] = useMemo(() => {
         return tableDataAdaptor(reservedData, selectedDate);
     }, [selectedDate])
 
@@ -42,30 +40,39 @@ export default function Reservation({createReservationAction, reservedData}
     function onSubmitReservation (value: any) {
         createReservationAction({
             ...value,
-            date: convertDayjsToString(selectedDate),
+            date: convertDayjsToDateString(selectedDate),
             user: "user",
             text: "text"
+        })
+    }
+
+    function onSelectTableData(data: SelectedTableData) {
+        setReservationInfo({
+            ...reservationInfo,
+            startTime: (data.startTime ? data.startTime : initialValue.startTime),
+            endTime: (data.endTime ? data.endTime : initialValue.endTime),
+            room: (data.room ? data.room : initialValue.room),
         })
     }
 
     return (
         <Flex className="h-full bg-white p-5" vertical gap='middle' >
             <Card title="select date">
-                <CustomCalendar reservedData={calendarNotificationData} onChangeDate={onChangeDate}></CustomCalendar>
+                <CustomCalendar reservedData={calendarDataAdaptor(reservedData)} onChangeDate={onChangeDate}></CustomCalendar>
             </Card>
             <Card title="select time">
-                <CustomTable setReservationInfo={setReservationInfo} reservedData={tableData}></CustomTable>
+                <CustomTable key={selectedDate.date()} onSelectReservation={onSelectTableData} reservedData={tableData}></CustomTable>
             </Card>
 
             <Card title="check information details">
-                <ReservationInfoForm formValues={reservationInfo} onSubmit={onSubmitReservation}></ReservationInfoForm>
+                <ReservationForm formValues={reservationInfo} onPressSubmit={onSubmitReservation}></ReservationForm>
             </Card>
         </Flex>
     );
 }
 
 // utility functions below
-const calendarDataAdaptor = (fetchedData: FetchedReservationData[]): CalendarNotificationData[] => {
+const calendarDataAdaptor = (fetchedData: ReservedData[]): CalendarReservedData[] => {
     return fetchedData.map((data) => {
         return {
             id: data.id,
@@ -74,16 +81,16 @@ const calendarDataAdaptor = (fetchedData: FetchedReservationData[]): CalendarNot
         }
     })
 }
-const tableDataAdaptor = (fetchedData: FetchedReservationData[], selectedDate: Dayjs): TableReservationData[] => {
+const tableDataAdaptor = (fetchedData: ReservedData[], selectedDate: Dayjs): TableReservedData[] => {
     return fetchedData
         .filter((data) => {
-            return data.date === selectedDate.format("YYYY-MM-DD");
+            return data.date === convertDayjsToDateString(selectedDate);
         })
         .map((data) => {
             return {
                 id: data.id,
                 room: data.room,
-                start: data.startTime,
+                startTime: data.startTime,
                 duration: converToDuration(data.startTime, data.endTime),
             }
         })

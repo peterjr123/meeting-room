@@ -1,15 +1,10 @@
 import { TableProps } from "antd";
-import { TableReservationData } from "./type";
-// 시간표 데이터 (10분 단위, 10:00 ~ 11:00)
-const startHour = 8;
-const endHour = 18;
-const timeSlots = Array.from({ length: (endHour-startHour)*6 }, (_, i) => ({
-    key: i,
-    time: `${Math.floor(startHour + (i / 6)).toString().padStart(2, '0')}:${(i % 6) !== 0 ? (i % 6) * 10 : '00'}`, // 10:00 ~ 11:50
-}));
-console.log(timeSlots)
+import { MEETING_ROOMS, MeetingRoom, ReservationRequestData, TableReservedData, TimeSlot, TimeString } from "./type";
 
-const rooms = ["room1", "room2", "room3"];
+
+
+// 시간표 데이터 (10분 단위, 10:00 ~ 11:00)
+const timeSlots: TimeSlot[] = createTimeSlots(8, 18);
 
 type TableCell = {
     text: string,
@@ -18,14 +13,13 @@ type TableCell = {
 
 type TableRow = {
     key: string,
-    room: string,
-    [time: string]: TableCell
-     | string // key나 room이 string이므로 필요함
+    room: MeetingRoom,
+    [time: TimeString]: TableCell
 }
 
 
-const convertToDatasource = (reservations: TableReservationData[]) => {
-    const data: TableRow[] = rooms.map((room) => {
+export function convertToDatasource (reservedData: TableReservedData[]) {
+    const data: TableRow[] = MEETING_ROOMS.map((room) => {
         const row: TableRow = {
             'key': room,
             'room': room,
@@ -33,25 +27,24 @@ const convertToDatasource = (reservations: TableReservationData[]) => {
 
         // 각 시간 슬롯에 대한 예약 확인
         timeSlots.forEach((slot, index) => {
-            const reservation = reservations.find(
-                (r) => r.room === room && r.start === slot.time
+            const reserved = reservedData.find(
+                (r) => r.room === room && r.startTime === slot.time
             );
 
-            if (reservation) {
-
+            if (reserved) {
                 // 예약 시작 시간인 경우
-                const colSpan = reservation.duration / 10;
+                const colSpan = reserved.duration / 10;
                 row[slot.time] = {
-                    text: `예약 (${reservation.duration}분)`,
+                    text: `예약 (${reserved.duration}분)`,
                     colSpan: colSpan,
                 };
             } else if (
-                reservations.some(
+                reservedData.some(
                     (r) =>
                         r.room === room &&
-                        timeSlots.findIndex((s) => s.time === r.start) < index &&
+                        timeSlots.findIndex((s) => s.time === r.startTime) < index &&
                         index <
-                        timeSlots.findIndex((s) => s.time === r.start) + r.duration / 10
+                        timeSlots.findIndex((s) => s.time === r.startTime) + r.duration / 10
                 )
             ) {
                 // 예약 중간 시간인 경우
@@ -73,7 +66,7 @@ const convertToDatasource = (reservations: TableReservationData[]) => {
     return data;
 }
 
-const getTableColumns = (CellComponent: React.ElementType) => {
+export function getTableColumns (CellComponent: React.ElementType) {
     // 테이블 컬럼 정의
     const columns: TableProps<TableRow>['columns'] = [
         {
@@ -101,4 +94,27 @@ const getTableColumns = (CellComponent: React.ElementType) => {
 }
 
 
-export {convertToDatasource, getTableColumns};
+function createTimeSlots(startHour:number, endHour: number): TimeSlot[] {
+    return Array.from({ length: (endHour-startHour)*6 }, (_, i) => {
+        const hour = Math.floor(startHour + (i / 6)).toString().padStart(2, '0');
+        const minute = ((i % 6) * 10).toString().padStart(2, '0');
+        return {
+            key: i,
+            time: `${hour}:${minute}`
+        }
+    })
+}
+
+export function toPathParams(reservationData: ReservationRequestData) {
+    const params = {
+        date: reservationData.date,
+        startTime: reservationData.startTime,
+        endTime: reservationData.endTime
+    };
+
+    return Object.keys(params)
+        .map((key) => {
+            return `${key}=${params[key as keyof typeof params]}`
+        })
+        .join('&');
+}

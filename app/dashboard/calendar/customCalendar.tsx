@@ -4,12 +4,12 @@ import { Calendar, CalendarProps } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import CustomCalendarHeader from "./customCalendarHeader";
 import { useState } from "react";
-import { CalendarNotificationData } from "@/app/lib/data/type";
+import { CalendarReservedData } from "@/app/lib/data/type";
 import CalendarCell from "./customCalendarCell";
   
 
 export default function Reservation({reservedData, onChangeDate} 
-    : {reservedData: CalendarNotificationData[], onChangeDate: (date: Dayjs) => void}) {
+    : {reservedData: CalendarReservedData[], onChangeDate: (date: Dayjs) => void}) {
     const [displayMode, setDisplayMode] = useState<string>("week");
     const [selectedDate, setSelectedDate] = useState<Dayjs>();
 
@@ -52,12 +52,12 @@ export default function Reservation({reservedData, onChangeDate}
     );
 }
 
-const filterByDate = (date: Dayjs, dataList: CalendarNotificationData[]): CalendarNotificationData[] => {
+const filterByDate = (date: Dayjs, dataList: CalendarReservedData[]): CalendarReservedData[] => {
     const dateString = date.format("YYYY-MM-DD");
     return dataList.filter((item) => item.date === dateString);
 }
 
-const converToNotificationFormat = (dataList: CalendarNotificationData[]) => {
+const converToNotificationFormat = (dataList: CalendarReservedData[]) => {
     return dataList.map((item) => ({
         type: 'warning',
         content: item.text,
