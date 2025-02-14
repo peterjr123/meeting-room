@@ -1,36 +1,19 @@
-from fastapi import FastAPI, HTTPException, Depends
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from sqlalchemy import and_, or_
 
-# SQLite 데이터베이스 설정
-SQLALCHEMY_DATABASE_URL = "sqlite:///./reservations.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-# 데이터베이스 모델 정의
-class ReservationDB(Base):
-    __tablename__ = "reservations"
-    id = Column(Integer, primary_key=True, index=True)
-    date = Column(String, index=True)
-    user = Column(String, index=True)
-    text = Column(String)
-    startTime = Column(String)
-    endTime = Column(String)
-    room = Column(String)
-
-# 데이터베이스 테이블 생성
-Base.metadata.create_all(bind=engine)
-
-# Pydantic 모델 정의 (API 요청 및 응답 스키마)
 class ReservationCreate(BaseModel):
+    userId: str
+    userName: str
+    purpose: str
+    details: str
     date: str
-    user: str
-    text: str
     startTime: str
     endTime: str
     room: str
@@ -41,19 +24,29 @@ class ReservationResponse(ReservationCreate):
     class Config:
         from_attributes = True
 
-# FastAPI 애플리케이션 생성
-app = FastAPI()
 
-# CORS 처리
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # 모든 도메인 허용 (개발용)
-    allow_credentials=True,
-    allow_methods=["*"],  # 모든 HTTP 메서드 허용
-    allow_headers=["*"],  # 모든 헤더 허용
-)
+Base = declarative_base()
 
-# 데이터베이스 세션 의존성
+class ReservationDB(Base):
+    __tablename__ = "reservations"
+    id = Column(Integer, primary_key=True, index=True)
+    userId = Column(String, index=True)
+    userName = Column(String, index=True)
+    purpose = Column(String)
+    details = Column(String)
+    date= Column(String)
+    startTime = Column(String)
+    endTime = Column(String)
+    room = Column(String)
+
+
+SQLALCHEMY_DATABASE_URL = "sqlite:///./reservations.db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# 데이터베이스 테이블 생성
+Base.metadata.create_all(bind=engine)
+
 def get_db():
     db = SessionLocal()
     try:
@@ -61,21 +54,29 @@ def get_db():
     finally:
         db.close()
 
+app = FastAPI()
 
-# CRUD API
+# 새로운 예약 생성
 @app.post("/reservations/", response_model=ReservationResponse)
 def create_reservation(reservation: ReservationCreate, db: Session = Depends(get_db)):
+    # 중복 검사
+    if is_reservation_conflict(db, reservation.date, reservation.startTime, reservation.endTime, reservation.room):
+        raise HTTPException(status_code=400, detail="Reservation conflicts with an existing reservation")
+
+    # 예약 생성
     db_reservation = ReservationDB(**reservation.model_dump())
     db.add(db_reservation)
     db.commit()
     db.refresh(db_reservation)
     return db_reservation
 
+# 모든 예약 조회
 @app.get("/reservations/", response_model=list[ReservationResponse])
 def read_reservations(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     reservations = db.query(ReservationDB).offset(skip).limit(limit).all()
     return reservations
 
+# 특정 예약 조회
 @app.get("/reservations/{reservation_id}", response_model=ReservationResponse)
 def read_reservation(reservation_id: int, db: Session = Depends(get_db)):
     reservation = db.query(ReservationDB).filter(ReservationDB.id == reservation_id).first()
@@ -83,6 +84,7 @@ def read_reservation(reservation_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Reservation not found")
     return reservation
 
+# 예약 수정
 @app.put("/reservations/{reservation_id}", response_model=ReservationResponse)
 def update_reservation(reservation_id: int, reservation: ReservationCreate, db: Session = Depends(get_db)):
     db_reservation = db.query(ReservationDB).filter(ReservationDB.id == reservation_id).first()
@@ -94,6 +96,7 @@ def update_reservation(reservation_id: int, reservation: ReservationCreate, db: 
     db.refresh(db_reservation)
     return db_reservation
 
+# 예약 삭제
 @app.delete("/reservations/{reservation_id}", response_model=ReservationResponse)
 def delete_reservation(reservation_id: int, db: Session = Depends(get_db)):
     db_reservation = db.query(ReservationDB).filter(ReservationDB.id == reservation_id).first()
@@ -104,15 +107,32 @@ def delete_reservation(reservation_id: int, db: Session = Depends(get_db)):
     return db_reservation
 
 
-# initial data
 @app.on_event("startup")
 def startup_event():
     db = SessionLocal()
     try:
         # 초기 데이터 삽입
         test_data = [
-            ReservationDB(id=1, date="2025-02-25", user="joon", text="reserved", startTime="10:00", endTime="11:40", room="room1"),
-            ReservationDB(id=2, date="2025-02-10", user="joon", text="meeting1", startTime="10:00", endTime="11:40", room="room1"),
+            ReservationDB(
+                userId='1',
+                userName="joon",
+                purpose="Meeting",
+                details="Project discussion",
+                date="2025-02-13",
+                startTime="10:00",
+                endTime="11:00",
+                room="room1",
+            ),
+            ReservationDB(
+                userId='2',
+                userName="alice",
+                purpose="Workshop",
+                details="Team building",
+                date="2025-02-13",
+                startTime="14:00",
+                endTime="16:00",
+                room="room2",
+            ),
         ]
         for data in test_data:
             db.merge(data)
@@ -121,3 +141,24 @@ def startup_event():
         db.close()
 
 
+# utility functions
+
+def is_reservation_conflict(db: Session, date: str, startTime: str, endTime: str, room: str, reservation_id: int = None):
+    # 동일한 날짜와 회의실에서 시간대가 겹치는 예약이 있는지 확인
+    conflicting_reservations = db.query(ReservationDB).filter(
+        and_(
+            ReservationDB.room == room,  # 같은 회의실
+            ReservationDB.date == date,  # 같은 날짜
+            or_(
+                and_(ReservationDB.startTime <= startTime, ReservationDB.endTime >= startTime), 
+                and_(ReservationDB.startTime <= endTime, ReservationDB.endTime >= endTime),  
+                and_(ReservationDB.startTime >= startTime, ReservationDB.endTime <= endTime)
+            )
+        )
+    )
+
+    # 수정 시 현재 예약은 제외
+    if reservation_id:
+        conflicting_reservations = conflicting_reservations.filter(ReservationDB.id != reservation_id)
+
+    return conflicting_reservations.first() is not None
