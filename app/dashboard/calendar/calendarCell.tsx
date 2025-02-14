@@ -7,7 +7,7 @@ type NotificationData = {
 }
 
 
-export default function CustomCalendarCell({current, today, notificationData}
+export default function CalendarCell({current, today, notificationData}
     : {current: Dayjs, today: Dayjs, notificationData: NotificationData[]}) {
     
     return (
@@ -17,8 +17,8 @@ export default function CustomCalendarCell({current, today, notificationData}
             </div>
             <div className="ant-picker-calendar-date-content" style={{ scrollbarWidth: 'thin', scrollbarColor: '#eaeaea transparent'}}>
                 <ul className="events">
-                    {notificationData.map((item) => (
-                      <li key={item.content}>
+                    {notificationData.map((item, index) => (
+                      <li key={index}>
                         <Badge status={item.type as BadgeProps['status']} text={item.content} />
                       </li>
                     ))}

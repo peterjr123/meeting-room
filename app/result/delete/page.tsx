@@ -14,7 +14,7 @@ export default function ReservationResultPage() {
                 status="success"
                 title="성공적으로 삭제되었습니다."
                 extra={[
-                    <Link href="/my">
+                    <Link key={1} href="/my">
                         <Button type="primary" key="confirm">
                             Confirm
                         </Button>
@@ -30,7 +30,7 @@ export default function ReservationResultPage() {
                     <p>서버에서 오류가 발생하였습니다</p>
                 </div>}
                 extra={[
-                    <Link href="/">
+                    <Link key={2} href="/">
                         <Button type="primary" key="confirm">
                             Confirm
                         </Button>

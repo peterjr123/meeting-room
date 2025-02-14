@@ -1,7 +1,8 @@
 import { Dayjs } from "dayjs";
 import { DateString, TimeSlot, TimeString } from "./data/type";
 
-export function compareTime(time1: string, time2: string) {
+// time1이 빠르면 -1, 같으면 0, 늦으면 1
+export function compareTime(time1: TimeString, time2: TimeString) {
     const minutes1 = toMinutes(time1);
     const minutes2 = toMinutes(time2);
   
@@ -38,7 +39,9 @@ export function convertDayjsToTimeString(dayjs: Dayjs): TimeString {
   return dayjs.format("HH:mm") as TimeString;
 }
 
-
+export function roundDownDayjsToNearestTenMinutes(dayjs: Dayjs): TimeString {
+  return dayjs.subtract(dayjs.minute() % 10, 'minute').second(0).format('HH:mm') as TimeString;
+};
 
 
 

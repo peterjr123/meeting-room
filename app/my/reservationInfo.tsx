@@ -1,10 +1,12 @@
 'use client'
 
 import { Badge, Descriptions } from 'antd';
-import { Flex, Card, Divider, Button, Modal, Popconfirm } from "antd"
+import { Flex, Card, Divider, Button, Modal } from "antd"
+import { Popconfirm } from "@/app/third-party-wrapper"
 import type { DescriptionsProps } from 'antd';
 import { ReservedData } from '../lib/data/type';
-export function ReservationInfo({ reservedData, onDeleteReserved }
+
+export default function ReservationInfo({ reservedData, onDeleteReserved }
     : { reservedData: ReservedData, onDeleteReserved: (data: ReservedData) => void }) {
     const onConfirm = () => {
         onDeleteReserved(reservedData);

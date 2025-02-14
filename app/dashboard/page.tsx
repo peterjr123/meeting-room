@@ -21,11 +21,11 @@ export default async function dashboard() {
         });
         if (!result) {
             // validation failed
-            redirect(`/result?type=failed`)
+            redirect(`/result/create?type=failed`)
         }
         else {
             // success
-            redirect(`/result?type=success&${toPathParams(data)}`)
+            redirect(`/result/create?type=success&${toPathParams(data)}`)
         }
 
     }

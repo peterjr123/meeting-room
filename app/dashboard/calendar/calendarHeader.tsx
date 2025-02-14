@@ -10,7 +10,7 @@ import dayLocaleData from 'dayjs/plugin/localeData';
 
 dayjs.extend(dayLocaleData);
 
-const CustomCalendarHeader = function ({ value, type, onChange, onTypeChange, onChangeMode, displayMode }: { value: Dayjs, type: any, onChange: any, onTypeChange: any, onChangeMode: any, displayMode: any }) {
+const CalendarHeader = function ({ value, type, onChange, onTypeChange, onChangeMode, displayMode }: { value: Dayjs, type: any, onChange: any, onTypeChange: any, onChangeMode: any, displayMode: any }) {
   const start = 0;
   const end = 12;
   const monthOptions = [];
@@ -91,4 +91,4 @@ const CustomCalendarHeader = function ({ value, type, onChange, onTypeChange, on
   );
 }
 
-export default CustomCalendarHeader;
+export default CalendarHeader;

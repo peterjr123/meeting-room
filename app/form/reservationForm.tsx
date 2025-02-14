@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { ReservationFormData, ReservationRequestData } from "../lib/data/type";
 import { Form, Input, Button } from "antd";
 import TextArea from "antd/es/input/TextArea";
+import { TimeString } from "../lib/data/type";
 const { Item } = Form;
 
 export default function ReservationForm({ onPressSubmit, formValues }
@@ -15,10 +16,12 @@ export default function ReservationForm({ onPressSubmit, formValues }
     const [form] = Form.useForm();
 
     useEffect(() => {
+        const [hour, minute] = formValues.endTime.split(":");
+        const display = ((minute) ? `${hour}:${minute[0]}${Number(minute[1])+9}` : formValues.endTime);
         form.setFieldsValue({
-            ...formValues
+            ...formValues,
+            endTime: display
         });
-        console.log({ ...formValues })
     }, [formValues])
 
 

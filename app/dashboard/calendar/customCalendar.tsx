@@ -2,10 +2,10 @@
 
 import { Calendar, CalendarProps } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import CustomCalendarHeader from "./customCalendarHeader";
 import { useState } from "react";
 import { CalendarReservedData } from "@/app/lib/data/type";
-import CalendarCell from "./customCalendarCell";
+import CalendarCell from "./calendarCell";
+import CalendarHeader from "./calendarHeader";
   
 
 export default function Reservation({reservedData, onChangeDate} 
@@ -47,7 +47,7 @@ export default function Reservation({reservedData, onChangeDate}
         onChange={onChangeSelectedDate}
         value={selectedDate}
         headerRender={({ value, type, onChange, onTypeChange }) => {
-            return CustomCalendarHeader({value, type, onChange, onTypeChange, onChangeMode, displayMode});
+            return CalendarHeader({value, type, onChange, onTypeChange, onChangeMode, displayMode});
         }}/>
     );
 }

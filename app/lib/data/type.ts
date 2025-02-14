@@ -1,7 +1,8 @@
 export type DateString = `${number}${number}${number}${number}-${number}${number}-${number}${number}`; // ex: 2025-01-01
 export type TimeString = `${number}${number}:${number}${number}` | `${string}:${string}`; // ex: 09:00
 
-export const MEETING_ROOMS = ["room1", "room2", "room3"];
+
+export const MEETING_ROOMS = ["room1", "room2", "room3", "room4", "본 회의실"];
 export type MeetingRoom = typeof MEETING_ROOMS[number]; // room1 | room2 | room3
 
 

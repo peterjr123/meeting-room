@@ -18,7 +18,7 @@ export default function ReservationResultPage() {
                     <p>{`시간: ${searchParams.get("startTime")} ~ ${searchParams.get("endTime")}`}</p>
                 </div>}
                 extra={[
-                    <Link href="/my">
+                    <Link key={1} href="/my">
                         <Button type="primary" key="confirm">
                             Confirm
                         </Button>
@@ -34,7 +34,7 @@ export default function ReservationResultPage() {
                     <p>이미 다른 누군가가 이미 예약한 경우 또는 많은 사람이 동시에 예약하는 경우에 발생할 가능성이 있습니다.</p>
                 </div>}
                 extra={[
-                    <Link href="/">
+                    <Link key={2} href="/">
                         <Button type="primary" key="confirm">
                             Confirm
                         </Button>

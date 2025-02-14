@@ -1,12 +1,13 @@
 import { Flex, Card, Divider, Button, Modal, Popconfirm } from "antd"
 
-import { deleteReservationData, fetchReservationData, getCurrentUserInfo } from "../lib/data/api";
+import { deleteReservationData, fetchFollowingReservationData, getCurrentUserInfo } from "../lib/data/api";
 import { ReservedData } from "../lib/data/type";
 import { redirect } from "next/navigation";
-import { ReservationInfo } from "./reservationInfo";
+import ReservationInfo from "./reservationInfo";
+import dayjs from "dayjs";
 
 export default async function MyReservationPage() {
-    const reservedData = await fetchReservationData();
+    const reservedData = await fetchFollowingReservationData(dayjs());
     const user = await getCurrentUserInfo();
     if (!user) redirect("/");
     const filteredData = filterMyReservedData(reservedData, user.userId);
@@ -43,4 +44,4 @@ export default async function MyReservationPage() {
 function filterMyReservedData(reservedData: ReservedData[], userId: string) {
     return reservedData.filter((data) => data.userId === userId)
     // TODO: filter datas
-}
+}  

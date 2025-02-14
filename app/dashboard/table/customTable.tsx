@@ -24,7 +24,7 @@ const initialValue: SelectedCell = {
   room: "initialValue",
 }
 const initialCellStatus: CellStatus = {
-  selectedStartCell: { ...initialValue },
+  selectedStartCell: { ...initialValue }, 
   selectedEndCell: { ...initialValue },
   hoveringCell: { ...initialValue },
 }
@@ -44,7 +44,7 @@ export default function CustomTable({ onSelectReservation, reservedData }:
   }
 
   // Table에 출력되는 cell
-  function CellComponent({ children, time, room, reserved }:
+  function TableCell({ children, time, room, reserved }:
     { children: React.ReactNode, time: TimeString, room: MeetingRoom, reserved: boolean }) {
     const onSelectTime = () => {
       // 이미 예약된 시간 위에 클릭하는 경우
@@ -104,7 +104,7 @@ export default function CustomTable({ onSelectReservation, reservedData }:
   return (
     <Table
       dataSource={convertToDatasource(reservedData)}
-      columns={getTableColumns(CellComponent)}
+      columns={getTableColumns(TableCell)}
       pagination={false}
       bordered
       scroll={{ x: "max-content" }} // 가로 스크롤 추가
@@ -157,7 +157,7 @@ const isClickOnReservedCell = (reservedData: TableReservedData[], time: TimeStri
 const isValidReservation = (startCell: SelectedCell, endCell: SelectedCell, reservedData: TableReservedData[]) => {
   // 1. 시작 시간보다 뒤에 있는 경우
   // 2. 시작 시간과 동일한 room인 경우
-  if (startCell.room === endCell.room && compareTime(startCell.time, endCell.time) < 0) {
+  if (startCell.room === endCell.room && compareTime(startCell.time as TimeString, endCell.time as TimeString) < 0) {
     // 3. 다른 reservation time과 겹치지 않는 경우
     if (!isOverlapReservedData(startCell, endCell, reservedData)) {
       return true;
@@ -184,6 +184,7 @@ const selectBgColor = (reserved: boolean, cellState: CellStatus, currentTime: Ti
     // 예약 cell : green
     bgColor = "bg-green-300";
   }
+  // 현재 시간 이전 cell: gray
   else if ((cellState.selectedStartCell.time === currentTime && cellState.selectedStartCell.room === current_room)
     || (cellState.selectedEndCell.time === currentTime && cellState.selectedEndCell.room === current_room)
   ) {
@@ -193,7 +194,7 @@ const selectBgColor = (reserved: boolean, cellState: CellStatus, currentTime: Ti
   else if (cellState.selectedStartCell.room === current_room &&
     // selected cell 보다는 늦고, hovering cell 보다는 빠른 시간
     // cell between: 옅은 blue
-    ((compareTime(currentTime, cellState.selectedStartCell.time) > 0) && (compareTime(currentTime, cellState.hoveringCell.time) < 0))
+    ((compareTime(currentTime, cellState.selectedStartCell.time as TimeString) > 0) && (compareTime(currentTime, cellState.hoveringCell.time as TimeString) < 0))
   ) {
     bgColor = "bg-blue-200";
   }

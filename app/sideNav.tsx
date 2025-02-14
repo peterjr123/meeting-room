@@ -1,6 +1,6 @@
 'use client'
 
-import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, HomeOutlined, SnippetsOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import Link from 'next/link';
@@ -12,12 +12,12 @@ const items: MenuItem[] = [
     {
         key: 'home',
         label: <Link href='/'>Home</Link>,
-        icon: <MailOutlined />,
+        icon: <HomeOutlined />,
     },
     {
         key: 'quick_reservation',
         label: <Link href='/quick'>Quick Reservation</Link>,
-        icon: <MailOutlined />,
+        icon: <SnippetsOutlined />,
     },
     {
         key: 'reservation_schedule',

@@ -33,7 +33,7 @@ export default function Nav() {
             },
             {
                 icon: <UserOutlined />,
-                label: 'Profile',
+                label: <Link href="/profile">Profile</Link>,
                 key: 'profile'
             }
         ]);
