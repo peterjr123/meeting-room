@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 
@@ -72,9 +72,30 @@ def create_reservation(reservation: ReservationCreate, db: Session = Depends(get
 
 # 모든 예약 조회
 @app.get("/reservations/", response_model=list[ReservationResponse])
-def read_reservations(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+def read_reservations(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
     reservations = db.query(ReservationDB).offset(skip).limit(limit).all()
     return reservations
+
+# 현재 시간 이후의 예약 조회 API
+@app.get("/reservations/upcoming", response_model=list[ReservationResponse])
+def get_upcoming_reservations(
+    base_time: str = Query(..., description="기준 시간 (HH:MM)"),
+    base_date: str = Query(..., description="기준 날짜 (YYYY-MM-DD)"),
+    db: Session = Depends(get_db)
+):
+    # 날짜가 base_date 이후이거나, 같은 날짜에서 base_time 이후인 예약 조회
+    upcoming_reservations = db.query(ReservationDB).filter(
+        or_(
+            ReservationDB.date > base_date,  # 날짜가 base_date 이후
+            and_(
+                ReservationDB.date == base_date,  # 같은 날짜
+                ReservationDB.endTime >= base_time  # base_time 이후
+            )
+        )
+    ).all()
+
+    return upcoming_reservations
+
 
 # 특정 예약 조회
 @app.get("/reservations/{reservation_id}", response_model=ReservationResponse)
@@ -105,6 +126,8 @@ def delete_reservation(reservation_id: int, db: Session = Depends(get_db)):
     db.delete(db_reservation)
     db.commit()
     return db_reservation
+
+
 
 
 @app.on_event("startup")
