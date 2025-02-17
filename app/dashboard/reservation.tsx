@@ -6,7 +6,7 @@ import dayjs, { Dayjs } from "dayjs";
 import CustomCalendar from "./calendar/customCalendar"
 import {  useMemo, useState } from "react";
 import { convertDayjsToDateString, converToDuration } from "../lib/utils";
-import { ReservedData, CalendarReservedData, TableReservedData, ReservationFormData, ReservationFormPlaceholder, SelectedTableData, ReservationRequestData } from "../lib/data/type";
+import { ReservedData, CalendarReservedData, TableReservedData, ReservationFormData, ReservationFormPlaceholder, SelectedTableData } from "../lib/data/type";
 import ReservationForm from "../form/reservationForm";
 
 // 사용자가 등록할 reservation 정보 type
@@ -32,7 +32,7 @@ export default function Reservation({ userName, createReservationAction, reserve
     // table data는 calendar가 날짜를 선택할 때마다 변경된다.
     const tableData: TableReservedData[] = useMemo(() => {
         return tableDataAdaptor(reservedData, selectedDate);
-    }, [selectedDate])
+    }, [selectedDate, reservedData])
 
     function onChangeDate (selectedDate: Dayjs) {
         setSelectedDate(selectedDate);

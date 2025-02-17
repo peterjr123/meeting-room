@@ -1,5 +1,5 @@
 import { Dayjs } from "dayjs";
-import { DateString, TimeSlot, TimeString } from "./data/type";
+import { DateString, TimeString } from "./data/type";
 
 // time1이 빠르면 -1, 같으면 0, 늦으면 1
 export function compareTime(time1: TimeString, time2: TimeString) {

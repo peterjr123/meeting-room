@@ -1,10 +1,10 @@
 'use client'
 
-import { Menu, MenuProps, Layout } from "antd";
+import { Menu, MenuProps } from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import { UserOutlined, LogoutOutlined, LoginOutlined, FormOutlined } from "@ant-design/icons";
-import { SignedOut, SignedIn, SignInButton, SignUpButton, UserButton, useUser, SignOutButton } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, useUser, SignOutButton } from "@clerk/nextjs";
 
 
 

@@ -1,19 +1,18 @@
 'use client'
 
-import { Card, Divider, Form } from "antd";
-import { ReservationRequestData } from "../lib/data/type";
+import { Card, Divider } from "antd";
+import { ReservationFormData, ReservationRequestData } from "../lib/data/type";
 import ReservationForm from "../form/reservationForm";
-const { Item } = Form;
 
 export default function QuickReservationForm({reservationData, onSubmit}: 
     {reservationData:ReservationRequestData, onSubmit: (data: ReservationRequestData) => void}
 ) {
     console.log(reservationData)
-    const onPressSubmit = (values: any) => {
+    const onPressSubmit = (values: ReservationFormData) => {
         onSubmit({
             ...values,
             userId: reservationData.userId
-        })
+        } as ReservationRequestData)
     } 
     return (
         <Card title="Quick Reservation">

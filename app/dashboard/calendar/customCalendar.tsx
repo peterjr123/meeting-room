@@ -46,8 +46,8 @@ export default function Reservation({reservedData, onChangeDate}
         <Calendar className="pb-4" fullscreen={true} showWeek={false} fullCellRender={fullCellRender} 
         onChange={onChangeSelectedDate}
         value={selectedDate}
-        headerRender={({ value, type, onChange, onTypeChange }) => {
-            return CalendarHeader({value, type, onChange, onTypeChange, onChangeMode, displayMode});
+        headerRender={({ value, onChange }) => {
+            return CalendarHeader({value, onChange, onChangeMode, displayMode});
         }}/>
     );
 }
