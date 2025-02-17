@@ -3,8 +3,7 @@ import dayjs from 'dayjs';
 
 import 'dayjs/locale/zh-cn';
 
-import { Calendar, Col, Radio, Row, Select, theme, Typography } from 'antd';
-import type { CalendarProps } from 'antd';
+import { Col, Radio, Row, Select } from 'antd';
 import type { Dayjs } from 'dayjs';
 import dayLocaleData from 'dayjs/plugin/localeData';
 

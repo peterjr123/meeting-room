@@ -3,7 +3,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { ReservationRequestData, ReservedData } from "./type";
 import { Dayjs } from "dayjs";
-import { convertDayjsToDateString, roundDownDayjsToNearestTenMinutes, convertDayjsToTimeString } from "../utils";
+import { convertDayjsToDateString, roundDownDayjsToNearestTenMinutes } from "../utils";
 
 const API_BASE_URL = process.env.API_BASE_URL; // FastAPI 서버 주소
 const O_AUTH_CLIENT_ID = process.env.O_AUTH_CLIENT_ID;
@@ -75,7 +75,7 @@ export async function getCurrentUserInfo(): Promise<{ userId: string, userName: 
 
   return {
     userId: user.id,
-    userName: user.fullName as string,
+    userName: user.username as string,
   }
 }
 

@@ -1,5 +1,5 @@
-import dayjs, { Dayjs } from "dayjs";
-import type { BadgeProps, CalendarMode } from 'antd';
+import { Dayjs } from "dayjs";
+import type { BadgeProps } from 'antd';
 import { Badge } from 'antd';
 type NotificationData = {
     type: string,

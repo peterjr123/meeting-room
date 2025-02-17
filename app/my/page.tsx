@@ -1,5 +1,4 @@
-import { Flex, Card, Divider, Button, Modal, Popconfirm } from "antd"
-
+import { Card, Divider } from "antd"
 import { deleteReservationData, fetchFollowingReservationData, getCurrentUserInfo } from "../lib/data/api";
 import { ReservedData } from "../lib/data/type";
 import { redirect } from "next/navigation";
@@ -20,7 +19,7 @@ export default async function MyReservationPage() {
         else
             redirect(`/result/delete?type=failed`)
 
-    }
+    } 
     return (
         <Card title="예약 현황">
             <ul>
@@ -31,7 +30,7 @@ export default async function MyReservationPage() {
                                 <ReservationInfo reservedData={data} onDeleteReserved={onDeleteReserved} />
                                 <Divider />
                             </li>
-                        )
+                        ) 
                     })
                 }
             </ul>

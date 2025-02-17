@@ -1,6 +1,6 @@
 'use client'
 
-import { Calendar, CalendarProps, Card, Divider, Flex, Table, TableProps } from "antd";
+import { Card, Flex } from "antd";
 import CustomTable from './table/customTable'
 import dayjs, { Dayjs } from "dayjs";
 import CustomCalendar from "./calendar/customCalendar"

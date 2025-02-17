@@ -1,10 +1,14 @@
 import dayjs from "dayjs";
-import { createReservationData, fetchFollowingReservationData, fetchReservationData, getCurrentUserInfo } from "../lib/data/api";
+import { createReservationData, fetchFollowingReservationData, getCurrentUserInfo } from "../lib/data/api";
 import { MEETING_ROOMS, ReservationRequestData, ReservedData, TimeString } from "../lib/data/type";
 import { compareTime, convertDayjsToDateString, convertDayjsToTimeString } from "../lib/utils";
 import { Alert } from "antd";
 import QuickReservationForm from "./quickReservationForm";
 import { redirect } from "next/navigation";
+
+const O_AUTH_CLIENT_ID = process.env.O_AUTH_CLIENT_ID;
+const O_AUTH_SECRET = process.env.O_AUTH_SECRET;
+const O_AUTH_REDIRECT_URL = process.env.O_AUTH_REDIRECT_URL;
 
 export default async function QuickPage() {
     const reservations = await fetchFollowingReservationData(dayjs());
@@ -20,6 +24,14 @@ export default async function QuickPage() {
 
     async function createReservation(reservationData: ReservationRequestData) {
         'use server'
+
+        const state = "0zOoDOt2WJOS0NMt";
+        const redirectUrl = "http://localhost:3000/reservation/create"
+        const authorizeUrl = "https://adapted-hound-15.clerk.accounts.dev/oauth/authorize"
+        redirect(`${authorizeUrl}?response_type=code&client_id=${O_AUTH_CLIENT_ID}&redirect_uri=${redirectUrl}&scope=profile&state=${state}`)
+        
+        
+        
         const result = await createReservationData(reservationData);
         if (!result) {
             // validation failed
@@ -33,7 +45,7 @@ export default async function QuickPage() {
         // TODO: do redirect with path params
     }
 
-    return (
+    return ( 
         <div>
             {(possibilities.length === 0
                 ?

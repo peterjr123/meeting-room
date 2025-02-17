@@ -5,8 +5,7 @@ import { Table } from "antd";
 
 import { compareTime, converToDuration } from "@/app/lib/utils";
 import { isTimeBetweenIncludeEdge } from "@/app/lib/utils";
-import { MeetingRoom, ReservationFormData, SelectedTableData, TableReservedData, TimeString } from "@/app/lib/data/type";
-import { Dayjs } from "dayjs";
+import { MeetingRoom, SelectedTableData, TableReservedData, TimeString } from "@/app/lib/data/type";
 import { convertToDatasource, getTableColumns } from "@/app/lib/data/utils";
 
 // 예약 데이터

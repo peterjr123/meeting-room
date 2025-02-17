@@ -4,7 +4,6 @@ import { AppstoreOutlined, HomeOutlined, SnippetsOutlined, SettingOutlined } fro
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
 type MenuItem = Required<MenuProps>['items'][number];
 

@@ -1,5 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
-import Nav from "./nav";
 import { Button, Card, Divider, Flex } from "antd";
 import Link from "next/link";
 export default async function Home() {

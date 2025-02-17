@@ -1,8 +1,7 @@
 'use client'
 
-import { Button, Card, Checkbox, Divider, Form, Input } from "antd";
-import { ReservationFormData, ReservationRequestData } from "../lib/data/type";
-import TextArea from "antd/es/input/TextArea";
+import { Card, Divider, Form } from "antd";
+import { ReservationRequestData } from "../lib/data/type";
 import ReservationForm from "../form/reservationForm";
 const { Item } = Form;
 

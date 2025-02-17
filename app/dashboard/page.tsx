@@ -1,7 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
 import Reservation from "./reservation";
 import { fetchReservationData, createReservationData, getCurrentUserInfo } from "../lib/data/api";
-import { ReservationFormData, ReservationRequestData, TimeString } from "../lib/data/type";
+import { ReservationFormData, TimeString } from "../lib/data/type";
 import { redirect } from "next/navigation";
 
 export default async function dashboard() {
