@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
@@ -127,41 +126,6 @@ def delete_reservation(reservation_id: int, db: Session = Depends(get_db)):
     db.commit()
     return db_reservation
 
-
-
-
-@app.on_event("startup")
-def startup_event():
-    db = SessionLocal()
-    try:
-        # 초기 데이터 삽입
-        test_data = [
-            ReservationDB(
-                userId='1',
-                userName="joon",
-                purpose="Meeting",
-                details="Project discussion",
-                date="2025-02-13",
-                startTime="10:00",
-                endTime="11:00",
-                room="room1",
-            ),
-            ReservationDB(
-                userId='2',
-                userName="alice",
-                purpose="Workshop",
-                details="Team building",
-                date="2025-02-13",
-                startTime="14:00",
-                endTime="16:00",
-                room="room2",
-            ),
-        ]
-        for data in test_data:
-            db.merge(data)
-        db.commit()
-    finally:
-        db.close()
 
 
 # utility functions
