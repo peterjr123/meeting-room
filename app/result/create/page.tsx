@@ -3,8 +3,18 @@
 import { Button, Result } from "antd";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function ReservationResultPage() {
+
+export default function pageWrapper() {
+    return (
+        <Suspense>
+            <ReservationResultPage />
+        </Suspense>
+    );
+}
+
+function ReservationResultPage() {
     const searchParams = useSearchParams();
 
     return (

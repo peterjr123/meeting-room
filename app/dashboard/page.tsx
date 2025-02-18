@@ -1,10 +1,11 @@
 import Reservation from "./reservation";
 import { fetchReservationData, createReservationData, getCurrentUserInfo } from "../lib/data/api";
 import { ReservationFormData, TimeString } from "../lib/data/type";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export default async function dashboard() {
     const reservations = await fetchReservationData();
+    if(!reservations) notFound();
     const user = await getCurrentUserInfo();
     if(!user) redirect("/");
 

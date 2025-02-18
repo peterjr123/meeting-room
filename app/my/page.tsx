@@ -1,14 +1,16 @@
 import { Card, Divider } from "antd"
 import { deleteReservationData, fetchFollowingReservationData, getCurrentUserInfo } from "../lib/data/api";
 import { ReservedData } from "../lib/data/type";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import ReservationInfo from "./reservationInfo";
 import dayjs from "dayjs";
 
 export default async function MyReservationPage() {
     const reservedData = await fetchFollowingReservationData(dayjs());
+    if(!reservedData) notFound();
     const user = await getCurrentUserInfo();
     if (!user) redirect("/");
+
     const filteredData = filterMyReservedData(reservedData, user.userId);
 
     async function onDeleteReserved(reservedData: ReservedData) {
@@ -18,7 +20,6 @@ export default async function MyReservationPage() {
             redirect(`/result/delete?type=success&${result.purpose}`)
         else
             redirect(`/result/delete?type=failed`)
-
     } 
     return (
         <Card title="예약 현황">

@@ -4,12 +4,13 @@ import { MEETING_ROOMS, ReservationRequestData, ReservedData, TimeString } from 
 import { compareTime, convertDayjsToDateString, convertDayjsToTimeString } from "../lib/utils";
 import { Alert } from "antd";
 import QuickReservationForm from "./quickReservationForm";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export default async function QuickPage() {
     const reservations = await fetchFollowingReservationData(dayjs());
+    if(!reservations) notFound();
     const user = await getCurrentUserInfo();
-    if (!user) return redirect("/");
+    if (!user) redirect("/");
 
     const possibilities = possibleRerservationData(reservations);
     if (possibilities.length !== 0) {

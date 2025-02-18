@@ -32,6 +32,7 @@ export function convertToDatasource (reservedData: TableReservedData[]) {
             );
 
             if (reserved) {
+                console.log(reserved)
                 // 예약 시작 시간인 경우
                 const colSpan = reserved.duration / 10;
                 row[slot.time] = {

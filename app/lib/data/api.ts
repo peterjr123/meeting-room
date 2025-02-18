@@ -1,7 +1,7 @@
 'use server'
 
 import { currentUser } from "@clerk/nextjs/server";
-import { ReservationRequestData, ReservedData } from "./type";
+import { ReservationRequestData } from "./type";
 import { Dayjs } from "dayjs";
 import { convertDayjsToDateString, roundDownDayjsToNearestTenMinutes } from "../utils";
 
@@ -12,60 +12,86 @@ const O_AUTH_REDIRECT_URL = process.env.O_AUTH_REDIRECT_URL;
 
 
 // 모든 예약 조회
-export async function fetchReservationData(): Promise<ReservedData[]> {
-  const response = await fetch(`${API_BASE_URL}/reservations/`);
-  if (!response.ok) {
-    console.log(response);
-    throw new Error("Failed to fetch reservations");
+export async function fetchReservationData() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/reservations/`, { cache: 'no-store'});
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
   }
-  return response.json();
+  catch (error) {
+    console.log(error)
+    return undefined;
+  }
 }
 
 export async function fetchFollowingReservationData(dayjs: Dayjs) {
   const date = convertDayjsToDateString(dayjs);
   const time = roundDownDayjsToNearestTenMinutes(dayjs);
 
-  const response = await fetch(`${API_BASE_URL}/reservations/upcoming?base_time=${time}&base_date=${date}`);
-  if (!response.ok) {
-    console.log(response);
-    throw new Error("Failed to fetch reservations");
+  try {
+    const response = await fetch(`${API_BASE_URL}/reservations/upcoming?base_time=${time}&base_date=${date}`, { cache: 'no-store'});
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
   }
-  return response.json();
+  catch (error) {
+    console.log(error)
+    return undefined
+  }
 }
 
 // 새로운 예약 생성
 export async function createReservationData(reservation: ReservationRequestData) {
   console.log(reservation)
-  const response = await fetch(`${API_BASE_URL}/reservations/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      date: reservation.date,
-      userName: reservation.userName,
-      userId: reservation.userId,
-      purpose: reservation.purpose,
-      details: reservation.details,
-      startTime: reservation.startTime,
-      endTime: reservation.endTime,
-      room: reservation.room,
-    }),
-  });
-  if (!response.ok) {
-    console.log(response);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/reservations/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        date: reservation.date,
+        userName: reservation.userName,
+        userId: reservation.userId,
+        purpose: reservation.purpose,
+        details: reservation.details,
+        startTime: reservation.startTime,
+        endTime: reservation.endTime,
+        room: reservation.room,
+      }),
+    });
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error);
     return undefined;
   }
-  return response.json();
+
 }
 
 export async function deleteReservationData(reservationId: number) {
-  const response = await fetch(`${API_BASE_URL}/reservations/${reservationId}`, { method: 'DELETE' });
-  console.log(response)
-  if (!response.ok) {
+  try{
+    const response = await fetch(`${API_BASE_URL}/reservations/${reservationId}`, { method: 'DELETE' });
+    if (!response.ok) {
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error);
     return undefined;
   }
-  return response.json();
+ 
 }
 
 
@@ -84,7 +110,7 @@ export async function getCurrentUserInfo(): Promise<{ userId: string, userName: 
 // oauth 인증
 
 export async function getAccessToken(code: string) {
-  if(!(O_AUTH_CLIENT_ID && O_AUTH_SECRET && O_AUTH_REDIRECT_URL)) {
+  if (!(O_AUTH_CLIENT_ID && O_AUTH_SECRET && O_AUTH_REDIRECT_URL)) {
     throw Error("env are undefined")
   }
 
@@ -99,7 +125,7 @@ export async function getAccessToken(code: string) {
       client_secret: O_AUTH_SECRET,
       redirect_uri: O_AUTH_REDIRECT_URL,
       code: code,
-    })
+    }),
   });
   if (!response.ok) {
     console.log(await response.text());
@@ -124,7 +150,7 @@ export async function validateAccessToken(accessToken: string) {
     })
   });
 
-  if(!response.ok) {
+  if (!response.ok) {
     console.log(response);
     console.log(await response.text());
   }

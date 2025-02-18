@@ -21,7 +21,7 @@ export default function ReservationForm({ onPressSubmit, formValues }
             ...formValues,
             endTime: display
         });
-    }, [formValues])
+    }, [formValues, form])
 
 
     return (
