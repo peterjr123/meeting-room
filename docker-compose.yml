@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  nextjs:
+    container_name: meeting_room_nextjs
+    image: nextjs-docker
+    build: ./nextjs-meetingroom
+    env_file:
+      - ./nextjs-meetingroom/.env.local
+    ports:
+      - "3000:3000"
+    environment:
+      - TZ=Asia/Seoul
+      - API_BASE_URL=http://fastapi:8000 # FastAPI 서비스와 통신
+    depends_on:
+      - fastapi
+
+  fastapi:
+    container_name: meeting_room_fastapi
+    image: fastapi
+    build: ./meeting-room-api
+    expose:
+      - "8000"
