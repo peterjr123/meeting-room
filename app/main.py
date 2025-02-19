@@ -6,6 +6,12 @@ from sqlalchemy.orm import sessionmaker
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import text
+import os
+from dotenv import load_dotenv
+
 
 class ReservationCreate(BaseModel):
     userId: str
@@ -16,6 +22,18 @@ class ReservationCreate(BaseModel):
     startTime: str
     endTime: str
     room: str
+
+class RoomCreate(BaseModel):
+    name: str
+    position: str
+    details: str
+
+class RoomCreateResponse(RoomCreate):
+    id: int
+
+    class Config:
+        from_attributes = True
+
 
 class ReservationResponse(ReservationCreate):
     id: int
@@ -36,10 +54,23 @@ class ReservationDB(Base):
     date= Column(String)
     startTime = Column(String)
     endTime = Column(String)
-    room = Column(String)
+    room = Column(String, ForeignKey('rooms.name', ondelete='CASCADE'))
+    rooms = relationship("RoomDB", back_populates="reservation")
 
+class RoomDB(Base):
+    __tablename__ = "rooms"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    position = Column(String)
+    details = Column(String)
+    reservation = relationship("ReservationDB", back_populates="rooms", uselist=True)
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./reservations.db"
+load_dotenv()
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
+
+if not SQLALCHEMY_DATABASE_URL:
+    raise ValueError("환경 변수에서 SQLALCHEMY_DATABASE_URL을 찾을 수 없습니다.")
+
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -55,9 +86,61 @@ def get_db():
 
 app = FastAPI()
 
+# 새로운 회의실 생성
+@app.post("/rooms/", response_model=RoomCreateResponse)
+def create_room(creation: RoomCreate, db: Session = Depends(get_db)):
+    # 예약 생성
+    db_reservation = RoomDB(**creation.model_dump())
+    db.add(db_reservation)
+    db.commit()
+    db.refresh(db_reservation)
+    return db_reservation
+
+# 모든 회의실 조회
+@app.get("/rooms/", response_model=list[RoomCreateResponse])
+def read_rooms(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
+    reservations = db.query(RoomDB).offset(skip).limit(limit).all()
+    return reservations
+
+# 회의실 정보 수정
+@app.put("/rooms/{room_id}", response_model=RoomCreateResponse)
+def update_room(room_id: int, room: RoomCreate, db: Session = Depends(get_db)):
+    db_room = db.query(RoomDB).filter(RoomDB.id == room_id).first()
+    if db_room is None:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    # 먼저 해당 회의실로 예약된 예약 room 업데이트 (cascade가 sqlite에서 제공되지 않음)
+    reserved_room = db.query(RoomDB).filter(RoomDB.id == room_id).first()
+    db.query(ReservationDB).filter(ReservationDB.room == room.name).update({"room": room.name})
+
+    for key, value in room.model_dump().items():
+        setattr(db_room, key, value)
+    db.commit()
+    db.refresh(db_room)
+    return db_room
+
+# 예약 삭제
+@app.delete("/rooms/{room_id}", response_model=RoomCreateResponse)
+def delete_room(room_id: int, db: Session = Depends(get_db)):
+    db_room = db.query(RoomDB).filter(RoomDB.id == room_id).first()
+    if db_room is None:
+        raise HTTPException(status_code=404, detail="Reservation not found")
+    # 먼저 해당 회의실로 예약된 예약 삭제 (cascade가 sqlite에서 제공되지 않음)
+    room = db.query(RoomDB).filter(RoomDB.id == room_id).first()
+    db.query(ReservationDB).filter(ReservationDB.room == room.name).delete()
+
+    db.delete(db_room)
+    db.commit()
+    return db_room
+
+
 # 새로운 예약 생성
 @app.post("/reservations/", response_model=ReservationResponse)
 def create_reservation(reservation: ReservationCreate, db: Session = Depends(get_db)):
+    # foreign key 검사 (sqlite의 경우 foreign key 검사를 하지 않음. 다른 DB를 사용하는 경우 try-catch로 검사할 수 있음)
+    if db.query(RoomDB).filter(RoomDB.name == reservation.room).first() is None:
+        raise HTTPException(status_code=400, detail="no room exist specified by .room field")
+    
     # 중복 검사
     if is_reservation_conflict(db, reservation.date, reservation.startTime, reservation.endTime, reservation.room):
         raise HTTPException(status_code=400, detail="Reservation conflicts with an existing reservation")
