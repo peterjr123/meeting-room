@@ -1,11 +1,13 @@
 import Reservation from "./reservation";
-import { fetchReservationData, createReservationData, getCurrentUserInfo } from "../lib/data/api";
+import { fetchReservationData, createReservationData, getCurrentUserInfo, fetchRoomData } from "../lib/data/api";
 import { ReservationFormData, TimeString } from "../lib/data/type";
 import { notFound, redirect } from "next/navigation";
 
 export default async function dashboard() {
     const reservations = await fetchReservationData();
     if(!reservations) notFound();
+    const roomData = await fetchRoomData();
+    if(!roomData) notFound();
     const user = await getCurrentUserInfo();
     if(!user) redirect("/");
 
@@ -31,7 +33,7 @@ export default async function dashboard() {
     }
     return (
         <div className="h-full">
-            <Reservation userName={user.userName} createReservationAction={createReservation} reservedData={reservations}></Reservation>
+            <Reservation userName={user.userName} createReservationAction={createReservation} reservedData={reservations} meetingRooms={roomData.map((data) => data.name)}></Reservation>
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import { createReservationData, fetchFollowingReservationData, fetchReservationData, getCurrentUserInfo } from "../lib/data/api";
-import { MEETING_ROOMS, ReservationRequestData, ReservedData, TimeString } from "../lib/data/type";
+import { createReservationData, fetchFollowingReservationData, fetchReservationData, fetchRoomData, getCurrentUserInfo } from "../lib/data/api";
+import { ReservationRequestData, ReservedData, TimeString } from "../lib/data/type";
 import { compareTime, convertDayjsToDateString, convertDayjsToTimeString } from "../lib/utils";
 import { Alert } from "antd";
 import QuickReservationForm from "./quickReservationForm";
@@ -9,10 +9,12 @@ import { notFound, redirect } from "next/navigation";
 export default async function QuickPage() {
     const reservations = await fetchFollowingReservationData(dayjs());
     if(!reservations) notFound();
+    const roomData = await fetchRoomData();
+        if(!roomData) notFound();
     const user = await getCurrentUserInfo();
     if (!user) redirect("/");
 
-    const possibilities = possibleRerservationData(reservations);
+    const possibilities = possibleRerservationData(reservations, roomData.map((data) => data.name));
     if (possibilities.length !== 0) {
         possibilities[0].userId = user.userId;
         possibilities[0].userName = user.userName;
@@ -56,12 +58,12 @@ export default async function QuickPage() {
     );
 }
 
-function possibleRerservationData(reservationData: ReservedData[]): ReservationRequestData[] {
+function possibleRerservationData(reservationData: ReservedData[], meetingRooms: string[]): ReservationRequestData[] {
     const now = dayjs();
     const currentMinutes = Math.floor(now.minute() / 10) * 10;
     const startTime = now.minute(currentMinutes).second(0);
     // 먼저 템플릿 생성
-    const possibilities: ReservationRequestData[] = MEETING_ROOMS.map((room) => {
+    const possibilities: ReservationRequestData[] = meetingRooms.map((room) => {
         // 현재 시간부터 1시간 뒤까지 각 room에 대한 ReservationData 생성
         return {
             date: convertDayjsToDateString(now),

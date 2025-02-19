@@ -2,10 +2,6 @@ export type DateString = `${number}${number}${number}${number}-${number}${number
 export type TimeString = `${number}${number}:${number}${number}` | `${string}:${string}`; // ex: 09:00
 
 
-export const MEETING_ROOMS = ["room1", "room2", "room3", "room4", "본 회의실"];
-export type MeetingRoom = typeof MEETING_ROOMS[number]; // room1 | room2 | room3
-
-
 // 서버에서 받아오는 이미 예약된 데이터에 대한 타입
 export type ReservedData = {
     id: number
@@ -20,7 +16,7 @@ export type ReservationRequestData = {
     details: string,
     startTime: TimeString,
     endTime: TimeString,
-    room: MeetingRoom
+    room: string
 }
 
 // Calendar에서 사용하는 데이터 타입
@@ -34,12 +30,17 @@ export type CalendarReservedData = {
 export type TableReservedData = {
     id: number,
     userName: string,
-    room: MeetingRoom,
+    room: string,
     startTime: TimeString,
     duration: number,
 }
 
-
+export type RoomData = {
+    id: number,
+    name: string,
+    position: string,
+    details: string,
+}
 
 export type ReservationFormPlaceholder = {
     startTime: string,
@@ -49,7 +50,7 @@ export type ReservationFormPlaceholder = {
 export type SelectedTableData = {
     startTime: TimeString | undefined,
     endTime: TimeString | undefined,
-    room: MeetingRoom | undefined,
+    room: string | undefined,
 }
 export type ReservationFormData = {
     date: DateString,
@@ -58,7 +59,7 @@ export type ReservationFormData = {
     details: string,
     startTime: TimeString | ReservationFormPlaceholder["startTime"],
     endTime: TimeString | ReservationFormPlaceholder["endTime"],
-    room: MeetingRoom | ReservationFormPlaceholder["room"],
+    room: string | ReservationFormPlaceholder["room"],
 }
 
 

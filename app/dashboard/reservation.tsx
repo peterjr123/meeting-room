@@ -17,8 +17,8 @@ const initialValue: ReservationFormPlaceholder = {
     room: "please select on table",
 }
 
-export default function Reservation({ userName, createReservationAction, reservedData}
-    : { userName:string, createReservationAction:(requestData: ReservationFormData) => void, reservedData: ReservedData[]}
+export default function Reservation({ userName, createReservationAction, reservedData, meetingRooms}
+    : { userName:string, createReservationAction:(requestData: ReservationFormData) => void, reservedData: ReservedData[], meetingRooms: string[]}
 ) {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
     const [reservationInfo, setReservationInfo] = useState<ReservationFormData>({
@@ -57,7 +57,7 @@ export default function Reservation({ userName, createReservationAction, reserve
                 <CustomCalendar reservedData={calendarDataAdaptor(reservedData)} onChangeDate={onChangeDate}></CustomCalendar>
             </Card>
             <Card title="select time">
-                <CustomTable key={selectedDate.date()} onSelectReservation={onSelectTableData} reservedData={tableData}></CustomTable>
+                <CustomTable key={selectedDate.date()} onSelectReservation={onSelectTableData} reservedData={tableData} meetingRooms={meetingRooms}></CustomTable>
             </Card>
 
             <Card title="check information details">

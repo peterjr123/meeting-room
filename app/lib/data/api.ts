@@ -1,7 +1,7 @@
 'use server'
 
 import { currentUser } from "@clerk/nextjs/server";
-import { ReservationRequestData } from "./type";
+import { ReservationRequestData, RoomData } from "./type";
 import { Dayjs } from "dayjs";
 import { convertDayjsToDateString, roundDownDayjsToNearestTenMinutes } from "../utils";
 
@@ -67,7 +67,7 @@ export async function createReservationData(reservation: ReservationRequestData)
       }),
     });
     if (!response.ok) {
-      console.log(response);
+      console.log(await response.json());
       return undefined;
     }
     return response.json();
@@ -106,6 +106,102 @@ export async function getCurrentUserInfo(): Promise<{ userId: string, userName: 
 }
 
 
+// 회의실 API
+
+// 모든 예약 조회
+export async function fetchRoomData(): Promise<RoomData[] | undefined> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/rooms/`, { cache: 'no-store'});
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error)
+    return undefined;
+  }
+}
+
+// 새로운 회의실 생성
+export async function createRoomData(data: RoomData) {
+  console.log(data)
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/rooms/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: data.name,
+        position: data.position,
+        details: data.details
+      }),
+    });
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error);
+    return undefined;
+  }
+}
+
+// 회의실 정보 수정
+export async function updateRoomData(data: RoomData) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/rooms/${data.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: data.name,
+        position: data.position,
+        details: data.details
+      }),
+    });
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error);
+    return undefined;
+  }
+}
+
+// 회의실 정보 삭제
+export async function deleteRoomData(roomId: number) {
+  try{
+    const response = await fetch(`${API_BASE_URL}/rooms/${roomId}`, { method: 'DELETE' });
+    if (!response.ok) {
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error);
+    return undefined;
+  }
+ 
+}
+
+
+// admin authorization
+export async function isAuthorizedAdmin() {
+  const user = await currentUser();
+  if(user && user.username === "admin") 
+    return true;
+  return false;
+}
 
 // oauth 인증
 
