@@ -19,5 +19,11 @@ services:
     container_name: meeting_room_fastapi
     image: fastapi
     build: ./meeting-room-api
+    environment:
+      - SQLALCHEMY_DATABASE_URL=sqlite:///./data/reservations.db
+    volumes: 
+      - fastapi-db:/code/data/
     expose:
       - "8000"
+volumes:
+  fastapi-db:
