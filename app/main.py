@@ -1,18 +1,11 @@
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from fastapi import FastAPI, Depends, HTTPException, Query
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import text
-import os
-from dotenv import load_dotenv
 from datetime import datetime
-
+from models import ReservationDB, RecurringReservationDB, RoomDB, Base
+from database import get_db, engine
 
 class ReservationCreate(BaseModel):
     userId: str
@@ -58,62 +51,8 @@ class RecurringReservationResponse(RecurringReservationCreate):
     class Config:
         from_attributes = True
 
-Base = declarative_base()
 
-class ReservationDB(Base):
-    __tablename__ = "reservations"
-    id = Column(Integer, primary_key=True, index=True)
-    userId = Column(String, index=True)
-    userName = Column(String, index=True)
-    purpose = Column(String)
-    details = Column(String)
-    date= Column(String)
-    startTime = Column(String)
-    endTime = Column(String)
-    room = Column(String, ForeignKey('rooms.name', ondelete='CASCADE'))
-    rooms = relationship("RoomDB", back_populates="reservation_r1")
-
-class RecurringReservationDB(Base):
-    __tablename__ = "recurring_reservations"
-    id = Column(Integer, primary_key=True, index=True)
-    userId = Column(String, index=True)
-    userName = Column(String, index=True)
-    purpose = Column(String)
-    details = Column(String)
-    dayInWeek= Column(String)
-    startTime = Column(String)
-    endTime = Column(String)    
-    room = Column(String, ForeignKey('rooms.name', ondelete='CASCADE'))
-    rooms = relationship("RoomDB", back_populates="reservation_r2")
-
-class RoomDB(Base):
-    __tablename__ = "rooms"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-    position = Column(String)
-    details = Column(String)
-    reservation_r1 = relationship("ReservationDB", back_populates="rooms", uselist=True)
-    reservation_r2 = relationship("RecurringReservationDB", back_populates="rooms", uselist=True)
-
-load_dotenv()
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
-
-if not SQLALCHEMY_DATABASE_URL:
-    raise ValueError("환경 변수에서 SQLALCHEMY_DATABASE_URL을 찾을 수 없습니다.")
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# 데이터베이스 테이블 생성
 Base.metadata.create_all(bind=engine)
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 app = FastAPI()
 
 # 새로운 회의실 생성
@@ -121,9 +60,14 @@ app = FastAPI()
 def create_room(creation: RoomCreate, db: Session = Depends(get_db)):
     # 예약 생성
     db_reservation = RoomDB(**creation.model_dump())
-    db.add(db_reservation)
-    db.commit()
-    db.refresh(db_reservation)
+
+    try:
+        db.add(db_reservation)
+        db.commit()
+        db.refresh(db_reservation)
+    except IntegrityError:
+        raise HTTPException(status_code=404, detail="Duplicated Room")
+    
     return db_reservation
 
 # 모든 회의실 조회
@@ -138,15 +82,10 @@ def update_room(room_id: int, room: RoomCreate, db: Session = Depends(get_db)):
     db_room = db.query(RoomDB).filter(RoomDB.id == room_id).first()
     if db_room is None:
         raise HTTPException(status_code=404, detail="Room not found")
-    
-    # 먼저 해당 회의실로 예약된 예약 room 업데이트 (cascade가 sqlite에서 제공되지 않음)
-    reserved_room = db.query(RoomDB).filter(RoomDB.id == room_id).first()
-    db.query(ReservationDB).filter(ReservationDB.room == room.name).update({"room": room.name})
-    db.query(RecurringReservationDB).filter(RecurringReservationDB.room == room.name).update({"room": room.name})
 
-
-    for key, value in room.model_dump().items():
-        setattr(db_room, key, value)
+    db_room.name = room.name
+    db_room.position = room.position
+    db_room.details = room.details
     db.commit()
     db.refresh(db_room)
     return db_room
@@ -157,10 +96,6 @@ def delete_room(room_id: int, db: Session = Depends(get_db)):
     db_room = db.query(RoomDB).filter(RoomDB.id == room_id).first()
     if db_room is None:
         raise HTTPException(status_code=404, detail="Reservation not found")
-    # 먼저 해당 회의실로 예약된 예약 삭제 (cascade가 sqlite에서 제공되지 않음)
-    room = db.query(RoomDB).filter(RoomDB.id == room_id).first()
-    db.query(ReservationDB).filter(ReservationDB.room == room.name).delete()
-    db.query(RecurringReservationDB).filter(RecurringReservationDB.room == room.name).delete()
 
     db.delete(db_room)
     db.commit()
@@ -170,19 +105,19 @@ def delete_room(room_id: int, db: Session = Depends(get_db)):
 # 새로운 예약 생성
 @app.post("/reservations/", response_model=ReservationResponse)
 def create_reservation(reservation: ReservationCreate, db: Session = Depends(get_db)):
-    # foreign key 검사 (sqlite의 경우 foreign key 검사를 하지 않음. 다른 DB를 사용하는 경우 try-catch로 검사할 수 있음)
-    if db.query(RoomDB).filter(RoomDB.name == reservation.room).first() is None:
-        raise HTTPException(status_code=400, detail="no room exist specified by .room field")
-    
     # 중복 검사
     if is_reservation_conflict(db, reservation.date, reservation.startTime, reservation.endTime, reservation.room):
         raise HTTPException(status_code=400, detail="Reservation conflicts with an existing reservation")
 
     # 예약 생성
-    db_reservation = ReservationDB(**reservation.model_dump())
-    db.add(db_reservation)
-    db.commit()
-    db.refresh(db_reservation)
+    try:
+        db_reservation = ReservationDB(**reservation.model_dump())
+        db.add(db_reservation)
+        db.commit()
+        db.refresh(db_reservation)
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="no room exist specified by .room field")
+    
     return db_reservation
 
 # 모든 예약 조회
@@ -234,19 +169,19 @@ def delete_reservation(reservation_id: int, db: Session = Depends(get_db)):
 # 새로운 정기 예약 생성
 @app.post("/reservations/recur/", response_model=RecurringReservationResponse)
 def create_recurring_reservation(reservation: RecurringReservationCreate, db: Session = Depends(get_db)):
-    # foreign key 검사 (sqlite의 경우 foreign key 검사를 하지 않음. 다른 DB를 사용하는 경우 try-catch로 검사할 수 있음)
-    if db.query(RoomDB).filter(RoomDB.name == reservation.room).first() is None:
-        raise HTTPException(status_code=400, detail="no room exist specified by .room field")
-    
     # 중복 검사
     if is_recurring_reservation_conflict(db, reservation.dayInWeek, reservation.startTime, reservation.endTime, reservation.room):
         raise HTTPException(status_code=400, detail="Reservation conflicts with an existing reservation")
+    db_reservation = RecurringReservationDB(**reservation.model_dump())
 
     # 예약 생성
-    db_reservation = RecurringReservationDB(**reservation.model_dump())
-    db.add(db_reservation)
-    db.commit()
-    db.refresh(db_reservation)
+    try:
+        db.add(db_reservation)
+        db.commit()
+        db.refresh(db_reservation)
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="no room exist specified by .room field")
+
     return db_reservation
 
 # 모든 정기 예약 조회
