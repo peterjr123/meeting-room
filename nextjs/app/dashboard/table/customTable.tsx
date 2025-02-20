@@ -5,13 +5,13 @@ import { Table } from "antd";
 
 import { compareTime, converToDuration } from "@/app/lib/utils";
 import { isTimeBetweenIncludeEdge } from "@/app/lib/utils";
-import { MeetingRoom, SelectedTableData, TableReservedData, TimeString } from "@/app/lib/data/type";
+import { SelectedTableData, TableReservedData, TimeString } from "@/app/lib/data/type";
 import { convertToDatasource, getTableColumns } from "@/app/lib/data/utils";
 
 // 예약 데이터
 type SelectedCell = {
   time: TimeString | "initialValue",
-  room: MeetingRoom | "initialValue",
+  room: string | "initialValue",
 }
 type CellStatus = {
   selectedStartCell: SelectedCell,
@@ -28,10 +28,11 @@ const initialCellStatus: CellStatus = {
   hoveringCell: { ...initialValue },
 }
 
-export default function CustomTable({ onSelectReservation, reservedData }:
+export default function CustomTable({ onSelectReservation, reservedData, meetingRooms }:
   {
     onSelectReservation: (data: SelectedTableData)=> void,
     reservedData: TableReservedData[],
+    meetingRooms: string[]
   }
 ) {
   const [cellState, dispatch] = useReducer(cellStateReducer, initialCellStatus);
@@ -44,7 +45,7 @@ export default function CustomTable({ onSelectReservation, reservedData }:
 
   // Table에 출력되는 cell
   function TableCell({ children, time, room, reserved }:
-    { children: React.ReactNode, time: TimeString, room: MeetingRoom, reserved: boolean }) {
+    { children: React.ReactNode, time: TimeString, room: string, reserved: boolean }) {
     const onSelectTime = () => {
       // 이미 예약된 시간 위에 클릭하는 경우
       if (isClickOnReservedCell(reservedData, time, room))
@@ -102,8 +103,8 @@ export default function CustomTable({ onSelectReservation, reservedData }:
 
   return (
     <Table
-      dataSource={convertToDatasource(reservedData)}
-      columns={getTableColumns(TableCell)}
+      dataSource={convertToDatasource(reservedData, meetingRooms)}
+      columns={getTableColumns(TableCell, meetingRooms)}
       pagination={false}
       bordered
       scroll={{ x: "max-content" }} // 가로 스크롤 추가
@@ -146,7 +147,7 @@ function cellStateReducer(state: CellStatus, action: Action) {
 
 // utility functions
 
-const isClickOnReservedCell = (reservedData: TableReservedData[], time: TimeString, room: MeetingRoom): boolean => {
+const isClickOnReservedCell = (reservedData: TableReservedData[], time: TimeString, room: string): boolean => {
   return reservedData.some((data) => {
     return (data.room === room && isTimeBetweenIncludeEdge(data.startTime, data.duration, time))
   });
@@ -177,7 +178,7 @@ const isOverlapReservedData = (startCell: SelectedCell, endCell: SelectedCell, r
   });
 }
 
-const selectBgColor = (reserved: boolean, cellState: CellStatus, currentTime: TimeString, current_room: MeetingRoom) => {
+const selectBgColor = (reserved: boolean, cellState: CellStatus, currentTime: TimeString, current_room: string) => {
   let bgColor;
   if (reserved === true) {
     // 예약 cell : green

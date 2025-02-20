@@ -1,17 +1,22 @@
 import { Card, Divider } from "antd"
-import { deleteReservationData, fetchFollowingReservationData, getCurrentUserInfo } from "../lib/data/api";
-import { ReservedData } from "../lib/data/type";
+import { deleteRecurringReservationData, deleteReservationData, fetchFollowingReservationData, fetchRecurringReservationData, getCurrentUserInfo } from "../lib/data/api";
+import { ReccuringReservationData, ReservedData } from "../lib/data/type";
 import { notFound, redirect } from "next/navigation";
 import ReservationInfo from "./reservationInfo";
 import dayjs from "dayjs";
+import RecurringReservationInfo from "./recurringReservationInfo";
 
 export default async function MyReservationPage() {
     const reservedData = await fetchFollowingReservationData(dayjs());
-    if(!reservedData) notFound();
+    const recurringResevedData = await fetchRecurringReservationData();
+    if(!reservedData || !recurringResevedData) notFound();
+
     const user = await getCurrentUserInfo();
     if (!user) redirect("/");
 
+    console.log(reservedData)
     const filteredData = filterMyReservedData(reservedData, user.userId);
+    const filteredRecurringData = filterMyRecurringData(recurringResevedData, user.userId);
 
     async function onDeleteReserved(reservedData: ReservedData) {
         'use server'
@@ -21,6 +26,14 @@ export default async function MyReservationPage() {
         else
             redirect(`/result/delete?type=failed`)
     } 
+    async function onDeleteRecurringReserved(reservedData: ReccuringReservationData) {
+        'use server'
+        const result = await deleteRecurringReservationData(reservedData.id);
+        if (result)
+            redirect(`/result/delete?type=success&${result.purpose}`)
+        else
+            redirect(`/result/delete?type=failed`)
+    }
     return (
         <Card title="예약 현황">
             <ul>
@@ -35,6 +48,18 @@ export default async function MyReservationPage() {
                     })
                 }
             </ul>
+            <ul>
+                {
+                    filteredRecurringData.map((data, index) => {
+                        return (
+                            <li key={index}>
+                                <RecurringReservationInfo reservedData={data} onDeleteReserved={onDeleteRecurringReserved} />
+                                <Divider />
+                            </li>
+                        ) 
+                    })
+                }
+            </ul>
         </Card>
     )
 }
@@ -42,6 +67,9 @@ export default async function MyReservationPage() {
 
 
 function filterMyReservedData(reservedData: ReservedData[], userId: string) {
-    return reservedData.filter((data) => data.userId === userId)
-    // TODO: filter datas
+    return reservedData.filter((data) => data.userId === userId);
 }  
+
+function filterMyRecurringData(reservedData: ReccuringReservationData[], userId: string) {
+    return reservedData.filter((data) => data.userId === userId);
+}

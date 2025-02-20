@@ -1,4 +1,3 @@
-'use client'
 
 import { AppstoreOutlined, HomeOutlined, SnippetsOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
@@ -30,21 +29,20 @@ const items: MenuItem[] = [
         key: 'profile',
         label: <Link href='/my'>My Reservation</Link>,
         icon: <SettingOutlined />
+    },
+    {
+        key: 'meeting_room',
+        label: <Link href='/config'>Meeting Room</Link>,
+        icon: <SettingOutlined />
     }
 ];
 
 
-export default function SideNav() {
-
-    const onClick: MenuProps['onClick'] = (e) => {
-        console.log('click ', e);
-    };
-
+export default async function SideNav() {
     return (
         <div className='h-full bg-white'>
             <Menu
                 className='h-full'
-                onClick={onClick}
                 mode="inline"
                 items={items}
                 selectedKeys={[]}

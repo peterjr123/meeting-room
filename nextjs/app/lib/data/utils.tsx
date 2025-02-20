@@ -1,5 +1,5 @@
 import { TableProps } from "antd";
-import { MEETING_ROOMS, MeetingRoom, ReservationRequestData, TableReservedData, TimeSlot, TimeString } from "./type";
+import { ReservationRequestData, TableReservedData, TimeSlot, TimeString } from "./type";
 
 
 
@@ -13,13 +13,13 @@ type TableCell = {
 
 type TableRow = {
     key: string,
-    room: MeetingRoom,
+    room: string,
     [time: TimeString]: TableCell
 }
 
 
-export function convertToDatasource (reservedData: TableReservedData[]) {
-    const data: TableRow[] = MEETING_ROOMS.map((room) => {
+export function convertToDatasource (reservedData: TableReservedData[], meetingRooms: string[]) {
+    const data: TableRow[] = meetingRooms.map((room) => {
         const row: TableRow = {
             'key': room,
             'room': room,
@@ -67,7 +67,7 @@ export function convertToDatasource (reservedData: TableReservedData[]) {
     return data;
 }
 
-export function getTableColumns (CellComponent: React.ElementType) {
+export function getTableColumns (CellComponent: React.ElementType, meetingRooms: string[]) {
     // 테이블 컬럼 정의
     const columns: TableProps<TableRow>['columns'] = [
         {
@@ -83,7 +83,7 @@ export function getTableColumns (CellComponent: React.ElementType) {
             render: (value: TableCell, record: TableRow, index: number) => (
                 // TODO: 현재 예약된 시간을 확인하기 위해 colSpan이 1인지 검사 -> 10분 예약은 불가능
                 // 더 나은 판별 방법을 사용할 필요가 있음
-                <CellComponent reserved={(record[slot.time] as TableCell).colSpan === 1 ? false : true} time={slot.time} room={`room${index+1}`}>{value.text}</CellComponent>
+                <CellComponent reserved={(record[slot.time] as TableCell).colSpan === 1 ? false : true} time={slot.time} room={meetingRooms[index]}>{value.text}</CellComponent>
             ),
             onCell: (record: TableRow, _: any) => {
                 return { colSpan: (record[slot.time] as TableCell).colSpan }

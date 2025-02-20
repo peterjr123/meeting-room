@@ -4,19 +4,19 @@ import { Descriptions } from 'antd';
 import { Button } from "antd"
 import { Popconfirm } from "@/app/third-party-wrapper"
 import type { DescriptionsProps } from 'antd';
-import { ReservedData } from '../lib/data/type';
+import { ReccuringReservationData, ReservedData } from '../lib/data/type';
 import { endTimeDisplayEncode } from '../lib/utils';
 
-export default function ReservationInfo({ reservedData, onDeleteReserved }
-    : { reservedData: ReservedData, onDeleteReserved: (data: ReservedData) => void }) {
+export default function RecurringReservationInfo({ reservedData, onDeleteReserved }
+    : { reservedData: ReccuringReservationData, onDeleteReserved: (data: ReccuringReservationData) => void }) {
     const onConfirm = () => {
         onDeleteReserved(reservedData);
     }
     const items: DescriptionsProps['items'] = [
         {
             key: '1',
-            label: 'Date',
-            children: reservedData.date,
+            label: 'Day In Week',
+            children: reservedData.dayInWeek,
             span: 2,
         },
         {

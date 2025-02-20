@@ -1,29 +1,32 @@
 'use client'
 
-import { useEffect } from "react";
-import { ReservationFormData } from "../lib/data/type";
-import { Form, Input, Button } from "antd";
+import { useEffect, useState } from "react";
+import { ReccuringReservationData, ReservationFormData } from "../lib/data/type";
+import { Form, Input, Button, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { endTimeDisplayDecode, endTimeDisplayEncode } from "../lib/utils";
 const { Item } = Form;
-
-export default function ReservationForm({ onPressSubmit, formValues }
+const { Option } = Select;
+export default function RecurringReservationForm({ onPressSubmit, formValues }
     : {
-        onPressSubmit: (formValues: ReservationFormData) => void,
-        formValues: ReservationFormData
+        onPressSubmit: (formValues: ReccuringReservationData) => void,
+        formValues: ReccuringReservationData
     }
 ) {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        
+        const dayInWeek = (formValues.dayInWeek === "Saturday" || formValues.dayInWeek === "Sunday") ? "" : formValues.dayInWeek
         form.setFieldsValue({
-            ...formValues,
-            endTime: endTimeDisplayEncode(formValues.endTime)
+            room: formValues.room,
+            userName: formValues.userName,
+            dayInWeek: dayInWeek,
+            startTime: formValues.startTime,
+            endTime: endTimeDisplayEncode(formValues.endTime),
         });
     }, [formValues, form])
 
-    function onFinish(formValues: ReservationFormData) {
+    function onFinish(formValues: ReccuringReservationData) {
         onPressSubmit({
             ...formValues,
             endTime: endTimeDisplayDecode(formValues.endTime)
@@ -38,10 +41,15 @@ export default function ReservationForm({ onPressSubmit, formValues }
             labelCol={{ span: 8 }}
             style={{ maxWidth: 600 }}
             onFinish={onFinish}>
-            <Item label="date" name="date">
-                <Input readOnly />
+            <Item label="choose day" name="dayInWeek">
+                <Select style={{ width: 120 }}>
+                    <Option value="Monday">Monday</Option>
+                    <Option value="Tuesday">Tuesday</Option>
+                    <Option value="Wednesday">Wednesday</Option>
+                    <Option value="Thursday">Thursday</Option>
+                    <Option value="Friday">Friday</Option>
+                </Select>
             </Item>
-
             <Item label="time">
                 <div className="flex">
                     <Item className="inline-block flex-grow" style={{ marginBottom: 0 }} name="startTime">

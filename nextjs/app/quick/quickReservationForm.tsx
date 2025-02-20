@@ -3,6 +3,7 @@
 import { Card, Divider } from "antd";
 import { ReservationFormData, ReservationRequestData } from "../lib/data/type";
 import ReservationForm from "../form/reservationForm";
+import RecurringReservationForm from "../form/recurringReservationForm";
 
 export default function QuickReservationForm({reservationData, onSubmit}: 
     {reservationData:ReservationRequestData, onSubmit: (data: ReservationRequestData) => void}
