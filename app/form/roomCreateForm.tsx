@@ -5,7 +5,7 @@ import { Form, Input, Button } from "antd";
 import TextArea from "antd/es/input/TextArea";
 const { Item } = Form;
 
-export default function ReservationForm({ onPressSubmit, existingRooms }
+export default function RoomCreateForm({ onPressSubmit, existingRooms }
     : {
         onPressSubmit: (formValues: RoomData) => void,
         existingRooms: RoomData[]

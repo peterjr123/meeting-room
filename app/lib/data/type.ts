@@ -62,6 +62,18 @@ export type ReservationFormData = {
     room: string | ReservationFormPlaceholder["room"],
 }
 
+// 정기 예약
+export type ReccuringReservationData = {
+    id: number,
+    dayInWeek: string,
+    userName: string,
+    userId: string,
+    purpose: string,
+    details: string,
+    startTime: TimeString | ReservationFormPlaceholder["startTime"],
+    endTime: TimeString | ReservationFormPlaceholder["endTime"],
+    room: string
+}
 
 // utils
 export type TimeSlot = {

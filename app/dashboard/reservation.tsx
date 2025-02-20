@@ -4,10 +4,12 @@ import { Card, Flex } from "antd";
 import CustomTable from './table/customTable'
 import dayjs, { Dayjs } from "dayjs";
 import CustomCalendar from "./calendar/customCalendar"
-import {  useMemo, useState } from "react";
+import {  useEffect, useMemo, useState } from "react";
 import { convertDayjsToDateString, converToDuration } from "../lib/utils";
-import { ReservedData, CalendarReservedData, TableReservedData, ReservationFormData, ReservationFormPlaceholder, SelectedTableData } from "../lib/data/type";
+import { ReservedData, CalendarReservedData, TableReservedData, ReservationFormData, ReservationFormPlaceholder, SelectedTableData, ReccuringReservationData } from "../lib/data/type";
 import ReservationForm from "../form/reservationForm";
+import FormCard from "./form/formCard";
+import { createRecurringReservationData, onRequestReservedData } from "../lib/data/api";
 
 // 사용자가 등록할 reservation 정보 type
 
@@ -17,10 +19,15 @@ const initialValue: ReservationFormPlaceholder = {
     room: "please select on table",
 }
 
-export default function Reservation({ userName, createReservationAction, reservedData, meetingRooms}
-    : { userName:string, createReservationAction:(requestData: ReservationFormData) => void, reservedData: ReservedData[], meetingRooms: string[]}
+export default function Reservation({ userName, createReservationAction, meetingRooms, initialReservedData }
+    : { userName:string, 
+        createReservationAction:(requestData: ReservationFormData | ReccuringReservationData, type: "onetime" | "recur") => void, 
+        meetingRooms: string[],
+        initialReservedData: ReservedData[],
+    }
 ) {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
+    const [reservedData, setReservedData] = useState<ReservedData[]>(initialReservedData)
     const [reservationInfo, setReservationInfo] = useState<ReservationFormData>({
         ...initialValue,
         date: convertDayjsToDateString(selectedDate),
@@ -34,12 +41,18 @@ export default function Reservation({ userName, createReservationAction, reserve
         return tableDataAdaptor(reservedData, selectedDate);
     }, [selectedDate, reservedData])
 
-    function onChangeDate (selectedDate: Dayjs) {
+    async function onChangeDate (selectedDate: Dayjs) {
         setSelectedDate(selectedDate);
+        setReservationInfo({
+            ...reservationInfo,
+            date: convertDayjsToDateString(selectedDate)
+        })
+        const newReservedData = await onRequestReservedData(convertDayjsToDateString(selectedDate));
+        setReservedData([...newReservedData]);
     }
 
-    function onSubmitReservation (value: ReservationFormData) {
-        createReservationAction(value)
+    function onSubmitReservation (value: ReservationFormData | ReccuringReservationData, type: "onetime" | "recur") {
+        createReservationAction(value, type)
     }
 
     function onSelectTableData(data: SelectedTableData) {
@@ -59,10 +72,7 @@ export default function Reservation({ userName, createReservationAction, reserve
             <Card title="select time">
                 <CustomTable key={selectedDate.date()} onSelectReservation={onSelectTableData} reservedData={tableData} meetingRooms={meetingRooms}></CustomTable>
             </Card>
-
-            <Card title="check information details">
-                <ReservationForm formValues={reservationInfo} onPressSubmit={onSubmitReservation}></ReservationForm>
-            </Card>
+            <FormCard reservationInfo={reservationInfo} onSubmitReservation={onSubmitReservation} selectedDate={selectedDate}></FormCard>
         </Flex>
     );
 }

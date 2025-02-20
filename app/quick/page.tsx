@@ -1,13 +1,14 @@
 import dayjs from "dayjs";
-import { createReservationData, fetchFollowingReservationData, fetchReservationData, fetchRoomData, getCurrentUserInfo } from "../lib/data/api";
+import { createReservationData, fetchFollowingReservationData, fetchReservationData, fetchRoomData, getCurrentUserInfo, onRequestReservedData } from "../lib/data/api";
 import { ReservationRequestData, ReservedData, TimeString } from "../lib/data/type";
 import { compareTime, convertDayjsToDateString, convertDayjsToTimeString } from "../lib/utils";
 import { Alert } from "antd";
 import QuickReservationForm from "./quickReservationForm";
 import { notFound, redirect } from "next/navigation";
+import RecurringReservationForm from "../form/recurringReservationForm";
 
 export default async function QuickPage() {
-    const reservations = await fetchFollowingReservationData(dayjs());
+    const reservations = await onRequestReservedData(convertDayjsToDateString(dayjs()));
     if(!reservations) notFound();
     const roomData = await fetchRoomData();
         if(!roomData) notFound();
@@ -30,7 +31,7 @@ export default async function QuickPage() {
         }
         else {
             // success
-            redirect(`/result/create?type=success&${toPathParams(reservationData)}`)
+            redirect(`/result/create?type=success&reservation=onetime&${toPathParams(reservationData)}`)
         }
 
         // TODO: do redirect with path params
