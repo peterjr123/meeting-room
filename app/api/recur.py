@@ -89,7 +89,7 @@ def read_recurring_reservations(skip: int = 0, limit: int = 1000, db: Session = 
 # 정기 예약 삭제
 @router.delete("/reservations/recur/{reservation_id}", response_model=RecurringReservationResponse)
 def delete_recurring_reservation(reservation_id: int, db: Session = Depends(get_db)):
-    db_reservation = db.query(RecurringReservationDB, CommonReservationDB, UserDB).filter(CommonReservationDB.id == reservation_id).join(CommonReservationDB, CommonReservationDB.id == OnetimeReservationDB.id).join(UserDB, CommonReservationDB.userId == UserDB.id).first()
+    db_reservation = db.query(RecurringReservationDB, CommonReservationDB, UserDB).filter(CommonReservationDB.id == reservation_id).join(CommonReservationDB, CommonReservationDB.id == RecurringReservationDB.id).join(UserDB, CommonReservationDB.userId == UserDB.id).first()
     if db_reservation is None:
         raise HTTPException(status_code=404, detail="Reservation not found")
     recur, common, user = db_reservation
