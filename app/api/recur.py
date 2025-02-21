@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from models import RecurringReservationDB, CommonReservationDB, UserDB
+from models import RecurringReservationDB, CommonReservationDB, UserDB, ParticipantDB
 from database import get_db, engine
 from schemas import RecurringReservationCreate, RecurringReservationResponse
 from api.utils import is_recurring_reservation_conflict
@@ -37,7 +37,19 @@ def create_recurring_reservation(reservation: RecurringReservationCreate, db: Se
         db.refresh(db_reservation)
     except IntegrityError as e:
         print(e)
+        db.rollback()
         raise HTTPException(status_code=400, detail="no room exist specified by .room field")
+    except Exception as e:
+        print(e)
+    
+    # 참여자 정보 저장
+    try:
+        for participant_name in reservation.participants:
+            db.add(ParticipantDB(id=db_reservation.id, participantName=participant_name))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
     
     # Recurring 정보 저장
     try: 
@@ -68,7 +80,8 @@ def read_recurring_reservations(skip: int = 0, limit: int = 1000, db: Session = 
             startTime=common.startTime,
             endTime=common.endTime,
             room=common.room,
-            dayInWeek=recur.dayInWeek
+            dayInWeek=recur.dayInWeek,
+            participants=[p.participantName for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
         )
         for recur, common, user in reservations
     ]
@@ -89,8 +102,8 @@ def delete_recurring_reservation(reservation_id: int, db: Session = Depends(get_
         startTime=common.startTime,
         endTime=common.endTime,
         room=common.room,
-        dayInWeek=recur.dayInWeek
-
+        dayInWeek=recur.dayInWeek,
+        participants=[p.participantName for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
     )
     db.delete(db_reservation.CommonReservationDB)
     db.commit()

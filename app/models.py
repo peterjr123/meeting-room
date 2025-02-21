@@ -1,6 +1,6 @@
 from database import Base
 from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, PrimaryKeyConstraint
 
 class CommonReservationDB(Base):
     __tablename__ = "reservation_common"
@@ -41,3 +41,10 @@ class RoomDB(Base):
     name = Column(String(30), unique=True, index=True)
     position = Column(String(50))
     details = Column(String(200))
+
+class ParticipantDB(Base):
+    __tablename__ = "participants"
+    id = Column(Integer, ForeignKey('reservation_common.id', ondelete='CASCADE'), index=True)
+    participantName = Column(String(50))
+
+    __table_args__ = (PrimaryKeyConstraint('id', 'participantName'),)

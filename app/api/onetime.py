@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from models import UserDB, OnetimeReservationDB, CommonReservationDB
+from models import UserDB, OnetimeReservationDB, CommonReservationDB, ParticipantDB
 from database import get_db
 from schemas import OnetimeReservationResponse, OnetimeReservationCreate
 from api.utils import is_reservation_conflict, to_date_string, to_datetime
@@ -40,7 +40,18 @@ def create_reservation(reservation: OnetimeReservationCreate, db: Session = Depe
         db.refresh(db_reservation)
     except IntegrityError as e:
         print(e)
+        db.rollback()
         raise HTTPException(status_code=400, detail="no room exist specified by .room field")
+    except Exception as e:
+        print(e)
+    # 참여자 정보 저장
+    try:
+        for participant_name in reservation.participants:
+            db.add(ParticipantDB(id=db_reservation.id, participantName=participant_name))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
     
     # Onetime 정보 저장
     try: 
@@ -54,12 +65,15 @@ def create_reservation(reservation: OnetimeReservationCreate, db: Session = Depe
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     
+    
+    
     return OnetimeReservationResponse(**reservation.model_dump(), id=db_reservation.id)
 
 # 모든 예약 조회
 @router.get("/reservations/", response_model=list[OnetimeReservationResponse])
 def read_reservations(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
     reservations = db.query(OnetimeReservationDB, CommonReservationDB, UserDB).join(CommonReservationDB, CommonReservationDB.id == OnetimeReservationDB.id).join(UserDB, CommonReservationDB.userId == UserDB.id).offset(skip).limit(limit).all()
+    
     return [
         OnetimeReservationResponse(
             id=common.id,
@@ -70,6 +84,7 @@ def read_reservations(skip: int = 0, limit: int = 1000, db: Session = Depends(ge
             startTime=common.startTime,
             endTime=common.endTime,
             room=common.room,
+            participants=[p.participantName for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
             date=to_date_string(onetime.date)
         )
         for onetime, common, user in reservations
@@ -104,7 +119,8 @@ def get_upcoming_reservations(
             startTime=common.startTime,
             endTime=common.endTime,
             room=common.room,
-            date=to_date_string(onetime.date)
+            date=to_date_string(onetime.date),
+            participants=[p.participantName for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
         )
         for onetime, common, user in upcoming_reservations
     ]
@@ -126,7 +142,8 @@ def delete_reservation(reservation_id: int, db: Session = Depends(get_db)):
         startTime=common.startTime,
         endTime=common.endTime,
         room=common.room,
-        date=to_date_string(onetime.date)
+        date=to_date_string(onetime.date),
+        participants=[p.participantName for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
     )
     db.delete(db_reservation.CommonReservationDB)
     db.commit()

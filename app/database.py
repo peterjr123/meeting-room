@@ -3,9 +3,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 # 데이터베이스 연결 URL (MySQL)
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@localhost:3306/nextjs_db"
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
+if SQLALCHEMY_DATABASE_URL is None:
+    raise Exception("environ SQLALCHEMY_DATABASE_URL is Not Found")
 
 # 엔진 생성
 engine = create_engine(SQLALCHEMY_DATABASE_URL)

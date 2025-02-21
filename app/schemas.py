@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -24,6 +25,7 @@ class ReservationCommonCreate(BaseModel):
     details: str
     startTime: str
     endTime: str
+    participants: List[str]
     room: str
 
 # Onetime
@@ -53,3 +55,11 @@ class RecurringReservationResponse(RecurringReservationCreate):
 
     class Config:
         from_attributes = True
+
+
+# Participant
+
+class ParticipantsCreate(BaseModel):
+    # str의 list
+    participants : List[str]
+
