@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 from datetime import datetime
-from models import RecurringReservationDB, CommonReservationDB, OnetimeReservationDB
+from ..models import RecurringReservationDB, CommonReservationDB, OnetimeReservationDB
 
 # 주어진 Onetime Reservation이 겹치는지 판단.
 def is_reservation_conflict(db: Session, date: str, startTime: str, endTime: str, room: str, reservation_id: int = None):

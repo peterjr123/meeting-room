@@ -1,6 +1,9 @@
-from database import Base
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy import ForeignKey, PrimaryKeyConstraint
+from sqlalchemy.ext.declarative import declarative_base
+
+# Base 클래스 생성 (모델에서 상속받을 클래스)
+Base = declarative_base()
 
 class CommonReservationDB(Base):
     __tablename__ = "reservation_common"

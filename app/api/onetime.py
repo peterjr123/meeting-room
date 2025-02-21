@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from models import UserDB, OnetimeReservationDB, CommonReservationDB, ParticipantDB
-from database import get_db
-from schemas import OnetimeReservationResponse, OnetimeReservationCreate
-from api.utils import is_reservation_conflict, to_date_string, to_datetime
+from ..models import UserDB, OnetimeReservationDB, CommonReservationDB, ParticipantDB
+from ..database import get_db
+from ..schemas import OnetimeReservationResponse, OnetimeReservationCreate
+from .utils import is_reservation_conflict, to_date_string, to_datetime
 from sqlalchemy import and_, or_, func
 
 
