@@ -21,11 +21,17 @@ export default function RecurringReservationInfo({ reservedData, onDeleteReserve
         },
         {
             key: '2',
+            label: 'room',
+            children: reservedData.room,
+            span: 2,
+        },
+        {
+            key: '3',
             label: 'Start Time',
             children: reservedData.startTime,
         },
         {
-            key: '3',
+            key: '4',
             label: 'End Time',
             children: endTimeDisplayEncode(reservedData.endTime),
         },

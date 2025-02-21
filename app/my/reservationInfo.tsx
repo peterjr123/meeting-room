@@ -17,15 +17,19 @@ export default function ReservationInfo({ reservedData, onDeleteReserved }
             key: '1',
             label: 'Date',
             children: reservedData.date,
-            span: 2,
         },
         {
             key: '2',
+            label: 'room',
+            children: reservedData.room,
+        },
+        {
+            key: '3',
             label: 'Start Time',
             children: reservedData.startTime,
         },
         {
-            key: '3',
+            key: '4',
             label: 'End Time',
             children: endTimeDisplayEncode(reservedData.endTime),
         },

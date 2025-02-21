@@ -46,7 +46,8 @@ export default function CustomTable({ onSelectReservation, reservedData, meeting
   // Table에 출력되는 cell
   function TableCell({ children, time, room, reserved }:
     { children: React.ReactNode, time: TimeString, room: string, reserved: boolean }) {
-    const onSelectTime = () => {
+    const onSelectTime = (e: any) => {
+      e.stopPropagation();
       // 이미 예약된 시간 위에 클릭하는 경우
       if (isClickOnReservedCell(reservedData, time, room))
         return;
@@ -91,9 +92,10 @@ export default function CustomTable({ onSelectReservation, reservedData, meeting
     const bgColor = selectBgColor(reserved, cellState, time, room);
 
     return (
-      <div className={`${bgColor} min-w-4 min-h-6 hover:bg-gray-300`}
+      <div className={`${bgColor} min-w-4 min-h-6 z-20 hover:bg-gray-300`}
         tabIndex={0}
         onClick={onSelectTime}
+        onMouseDown={(e) => e.preventDefault()}
         onMouseEnter={onHoverIn}
       >
         {children}
