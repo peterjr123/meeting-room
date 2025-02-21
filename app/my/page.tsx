@@ -15,8 +15,8 @@ export default async function MyReservationPage() {
     if (!user) redirect("/");
 
     console.log(reservedData)
-    const filteredData = filterMyReservedData(reservedData, user.userId);
-    const filteredRecurringData = filterMyRecurringData(recurringResevedData, user.userId);
+    const filteredData = filterMyReservedData(reservedData, user.userName);
+    const filteredRecurringData = filterMyRecurringData(recurringResevedData, user.userName);
 
     async function onDeleteReserved(reservedData: ReservedData) {
         'use server'
@@ -35,7 +35,7 @@ export default async function MyReservationPage() {
             redirect(`/result/delete?type=failed`)
     }
     return (
-        <Card title="예약 현황">
+        <Card title="예약 현황" className="min-w-[35rem]">
             <ul>
                 {
                     filteredData.map((data, index) => {
@@ -66,10 +66,14 @@ export default async function MyReservationPage() {
 
 
 
-function filterMyReservedData(reservedData: ReservedData[], userId: string) {
-    return reservedData.filter((data) => data.userId === userId);
+function filterMyReservedData(reservedData: ReservedData[], userName: string) {
+    return reservedData.filter((data) => {
+        return data.userName === userName || data.participants.includes(userName)
+    });
 }  
 
-function filterMyRecurringData(reservedData: ReccuringReservationData[], userId: string) {
-    return reservedData.filter((data) => data.userId === userId);
+function filterMyRecurringData(reservedData: ReccuringReservationData[], userName: string) {
+    return reservedData.filter((data) => {
+        return data.userName === userName || data.participants.includes(userName)
+    });
 }

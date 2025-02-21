@@ -17,13 +17,11 @@ export default function RecurringReservationInfo({ reservedData, onDeleteReserve
             key: '1',
             label: 'Day In Week',
             children: reservedData.dayInWeek,
-            span: 2,
         },
         {
             key: '2',
             label: 'room',
             children: reservedData.room,
-            span: 2,
         },
         {
             key: '3',
@@ -37,6 +35,16 @@ export default function RecurringReservationInfo({ reservedData, onDeleteReserve
         },
         {
             key: '5',
+            label: 'Participants',
+            children: (<div className='flex gap-4'>
+                {reservedData.participants.map((participant) => {
+                    return <div key={participant}>{participant}</div>
+                })}
+            </div>),
+            span: 2,
+        },
+        {
+            key: '6',
             label: 'details',
             children: reservedData.details,
             span: 2,
@@ -45,7 +53,7 @@ export default function RecurringReservationInfo({ reservedData, onDeleteReserve
     return (
         <div className="flex flex-col max-w-screen-lg ">
             <Descriptions
-                title={reservedData.purpose}
+                title={`${reservedData.purpose} by ${reservedData.userName}`}
                 bordered
                 items={items}
                 column={2}

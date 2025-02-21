@@ -35,15 +35,25 @@ export default function ReservationInfo({ reservedData, onDeleteReserved }
         },
         {
             key: '5',
+            label: 'Participants',
+            children: (<div className='flex gap-4'>
+                {reservedData.participants.map((participant) => {
+                    return <div key={participant}>{participant}</div>
+                })}
+            </div>),
+            span: 2,
+        },
+        {
+            key: '6',
             label: 'details',
             children: reservedData.details,
             span: 2,
         },
     ]
     return (
-        <div className="flex flex-col max-w-screen-lg ">
+        <div className="flex flex-col max-w-screen-lg">
             <Descriptions
-                title={reservedData.purpose}
+                title={`${reservedData.purpose} by ${reservedData.userName}`}
                 bordered
                 items={items}
                 column={2}

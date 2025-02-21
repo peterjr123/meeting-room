@@ -75,6 +75,7 @@ function possibleRerservationData(reservationData: ReservedData[], meetingRooms:
             room: room,
             purpose: "",
             details: "",
+            participants: [],
         }
     })
     // 겹치지 않는 시간대를 반환

@@ -34,6 +34,7 @@ export default function Reservation({ userName, createReservationAction, meeting
         userName: userName,
         purpose: "",
         details: "",
+        participants: [],
     });
 
     // table data는 calendar가 날짜를 선택할 때마다 변경된다.
