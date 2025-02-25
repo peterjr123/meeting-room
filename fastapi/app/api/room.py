@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from models import RoomDB
-from database import get_db
-from schemas import RoomCreateResponse, RoomCreate
+from ..models import RoomDB
+from ..database import get_db
+from ..schemas import RoomCreateResponse, RoomCreate
 
 
 router = APIRouter()

@@ -1,7 +1,6 @@
 # database.py
 
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
@@ -18,8 +17,7 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 # 세션 생성
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base 클래스 생성 (모델에서 상속받을 클래스)
-Base = declarative_base()
+
 
 # Dependency (세션 관리)
 def get_db():

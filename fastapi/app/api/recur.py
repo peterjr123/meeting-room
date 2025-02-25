@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from models import RecurringReservationDB, CommonReservationDB, UserDB, ParticipantDB
-from database import get_db, engine
-from schemas import RecurringReservationCreate, RecurringReservationResponse
-from api.utils import is_recurring_reservation_conflict
+from ..models import RecurringReservationDB, CommonReservationDB, UserDB, ParticipantDB
+from ..database import get_db
+from ..schemas import RecurringReservationCreate, RecurringReservationResponse
+from .utils import is_recurring_reservation_conflict
 
 router = APIRouter()
 
