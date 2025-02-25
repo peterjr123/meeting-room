@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { ReccuringReservationData, ReservationFormData } from "../lib/data/type";
-import { Form, Input, Button, Select } from "antd";
+import { ReccuringReservationData } from "../lib/data/type";
+import { Form, Input, Button, Select, AutoComplete, AutoCompleteProps } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { endTimeDisplayDecode, endTimeDisplayEncode } from "../lib/utils";
-const { Item } = Form;
+import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { fetchUserList } from "../lib/data/api";
+const { Item, List } = Form;
 const { Option } = Select;
 export default function RecurringReservationForm({ onPressSubmit, formValues }
     : {
@@ -13,6 +15,7 @@ export default function RecurringReservationForm({ onPressSubmit, formValues }
         formValues: ReccuringReservationData
     }
 ) {
+    const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -32,6 +35,17 @@ export default function RecurringReservationForm({ onPressSubmit, formValues }
             endTime: endTimeDisplayDecode(formValues.endTime)
         })
     }
+
+    async function onSearchParticipant(partialName: string) {
+            const users = await fetchUserList();
+            setOptions(
+                users
+                    .filter((user) => user.username.includes(partialName))
+                    .map((user) => { return { value: user.username } })
+                    .slice(0, 4)
+            )
+        }
+    
 
     return (
         <Form
@@ -67,6 +81,55 @@ export default function RecurringReservationForm({ onPressSubmit, formValues }
             <Item label="user" name="userName">
                 <Input readOnly />
             </Item>
+            <Item label="participants" name="participants">
+                <List name="participants">
+                    {(fields, { add, remove }) => (
+                        <>
+                            {fields.map((field, index) => (
+                                <div key={index} className="flex items-center mb-3">
+                                    <Item
+                                        className="flex-1"
+                                        style={{ marginBottom: 0 }}
+                                        {...field}
+                                        validateTrigger={['onChange', 'onBlur']}
+                                        rules={[
+                                            {
+                                                required: true,
+                                                whitespace: true,
+                                                message: "Please input participant's name or delete this field.",
+                                            },
+                                        ]}
+                                    >
+                                        <AutoComplete placeholder="participant name" options={options} onSearch={onSearchParticipant} />
+                                    </Item>
+                                    {
+                                        (fields.length > 0)
+                                            ?
+                                            (<div className="w-7 flex justify-center">
+                                                <MinusCircleOutlined
+                                                    className="dynamic-delete-button"
+                                                    onClick={() => remove(field.name)} />
+                                            </div>)
+                                            : null
+                                    }
+                                </div>
+                            ))}
+                            <Item key={"button"}>
+                                <Button
+                                    type="dashed"
+                                    onClick={() => add()}
+                                    className="w-full"
+                                    icon={<PlusOutlined />}
+                                >
+                                    Add field
+                                </Button>
+                            </Item>
+                        </>
+                    )}
+                </List>
+            </Item>
+
+
             <Item label="purpose" name="purpose">
                 <Input placeholder="enter the text..." />
             </Item>

@@ -16,7 +16,8 @@ export type ReservationRequestData = {
     details: string,
     startTime: TimeString,
     endTime: TimeString,
-    room: string
+    room: string,
+    participants: string[]
 }
 
 // Calendar에서 사용하는 데이터 타입
@@ -60,6 +61,7 @@ export type ReservationFormData = {
     startTime: TimeString | ReservationFormPlaceholder["startTime"],
     endTime: TimeString | ReservationFormPlaceholder["endTime"],
     room: string | ReservationFormPlaceholder["room"],
+    participants: string[]
 }
 
 // 정기 예약
@@ -72,7 +74,8 @@ export type ReccuringReservationData = {
     details: string,
     startTime: TimeString | ReservationFormPlaceholder["startTime"],
     endTime: TimeString | ReservationFormPlaceholder["endTime"],
-    room: string
+    room: string,
+    participants: string[]
 }
 
 // utils

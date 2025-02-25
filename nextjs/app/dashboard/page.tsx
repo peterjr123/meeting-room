@@ -6,7 +6,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { convertDayjsToDateString } from "../lib/utils";
 
 export default async function dashboard() {
-    let reservations = await onRequestReservedData(convertDayjsToDateString(dayjs()));
+    const reservations = await onRequestReservedData(convertDayjsToDateString(dayjs()));
     if (!reservations) notFound();
     const roomData = await fetchRoomData();
     if (!roomData) notFound();

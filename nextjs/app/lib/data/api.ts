@@ -1,6 +1,6 @@
 'use server'
 
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser, clerkClient } from "@clerk/nextjs/server";
 import { ReccuringReservationData, ReservationRequestData, ReservedData, RoomData, TimeString } from "./type";
 import dayjs, { Dayjs } from "dayjs";
 import { convertDayjsToDateString, roundDownDayjsToNearestTenMinutes } from "../utils";
@@ -65,6 +65,7 @@ export async function createReservationData(reservation: ReservationRequestData)
         startTime: reservation.startTime,
         endTime: reservation.endTime,
         room: reservation.room,
+        participants: reservation.participants
       }),
     });
     if (!response.ok) {
@@ -233,10 +234,11 @@ export async function createRecurringReservationData(reservation: ReccuringReser
         purpose: reservation.purpose,
         details: reservation.details,
         room: reservation.room,
+        participants: reservation.participants
       }),
     });
     if (!response.ok) {
-      console.log(response);
+      console.log(await response.text());
       return undefined;
     }
     return response.json();
@@ -294,6 +296,18 @@ export async function isAuthorizedAdmin() {
   if (user && user.username === "admin")
     return true;
   return false;
+}
+
+export async function fetchUserList() {
+  const client = await clerkClient()
+  const users = await client.users.getUserList();
+  const tmp = users.data.map((user) => {
+    return {
+      username: (user.username ? user.username : "not defined")
+    }
+  });
+  console.log(tmp)
+  return tmp;
 }
 
 // oauth 인증
@@ -373,6 +387,7 @@ function convertRecurringToOnetime(data: ReccuringReservationData, startDate: Da
           userId: data.userId,
           userName: data.userName,
           room: data.room,
+          participants: data.participants,
       });
       currentDate = currentDate.add(1, "week");
   }

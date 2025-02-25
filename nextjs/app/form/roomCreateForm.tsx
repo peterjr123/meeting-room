@@ -12,7 +12,6 @@ export default function RoomCreateForm({ onPressSubmit, existingRooms }
     }
 ) {
     function onFinish(formValues: { name: string, position: string, details: string}) {
-        existingRooms
         onPressSubmit({
             ...formValues,
             id: -1, // not needed
