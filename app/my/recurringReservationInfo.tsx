@@ -7,8 +7,8 @@ import type { DescriptionsProps } from 'antd';
 import { ReccuringReservationData, ReservedData } from '../lib/data/type';
 import { endTimeDisplayEncode } from '../lib/utils';
 
-export default function RecurringReservationInfo({ reservedData, onDeleteReserved }
-    : { reservedData: ReccuringReservationData, onDeleteReserved: (data: ReccuringReservationData) => void }) {
+export default function RecurringReservationInfo({ reservedData, onDeleteReserved, isOwned }
+    : { reservedData: ReccuringReservationData, onDeleteReserved: (data: ReccuringReservationData) => void, isOwned: boolean }) {
     const onConfirm = () => {
         onDeleteReserved(reservedData);
     }
@@ -58,15 +58,21 @@ export default function RecurringReservationInfo({ reservedData, onDeleteReserve
                 items={items}
                 column={2}
             />
-            <Popconfirm className="w-auto self-end mt-4"
-                title="예약 취소"
-                description="정말로 예약을 취소하시겠습니까?"
-                onConfirm={onConfirm}
-            >
-                <Button type="primary">
-                    cancel
-                </Button>
-            </Popconfirm>
+            {(isOwned
+                ?
+                <Popconfirm className="w-auto self-end mt-4"
+                    title="예약 취소"
+                    description="정말로 예약을 취소하시겠습니까?"
+                    onConfirm={onConfirm}
+                >
+                    <Button type="primary">
+                        cancel
+                    </Button>
+                </Popconfirm>
+                :
+                <div></div>
+            )}
+
         </div>
     );
 }

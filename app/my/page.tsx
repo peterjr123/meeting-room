@@ -41,7 +41,7 @@ export default async function MyReservationPage() {
                     filteredData.map((data, index) => {
                         return (
                             <li key={index}>
-                                <ReservationInfo reservedData={data} onDeleteReserved={onDeleteReserved} />
+                                <ReservationInfo reservedData={data} onDeleteReserved={onDeleteReserved} isOwned={data.userName === user.userName}/>
                                 <Divider />
                             </li>
                         ) 
@@ -53,7 +53,7 @@ export default async function MyReservationPage() {
                     filteredRecurringData.map((data, index) => {
                         return (
                             <li key={index}>
-                                <RecurringReservationInfo reservedData={data} onDeleteReserved={onDeleteRecurringReserved} />
+                                <RecurringReservationInfo reservedData={data} onDeleteReserved={onDeleteRecurringReserved} isOwned={data.userName === user.userName}/>
                                 <Divider />
                             </li>
                         ) 
