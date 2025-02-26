@@ -45,7 +45,7 @@ def create_recurring_reservation(reservation: RecurringReservationCreate, db: Se
     # 참여자 정보 저장
     try:
         for participant_name in reservation.participants:
-            db.add(ParticipantDB(id=db_reservation.id, participantName=participant_name))
+            db.add(ParticipantDB(id=db_reservation.id, name=participant_name))
         db.commit()
     except Exception as e:
         db.rollback()
@@ -81,7 +81,7 @@ def read_recurring_reservations(skip: int = 0, limit: int = 1000, db: Session = 
             endTime=common.endTime,
             room=common.room,
             dayInWeek=recur.dayInWeek,
-            participants=[p.participantName for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
+            participants=[p.name for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
         )
         for recur, common, user in reservations
     ]
@@ -103,7 +103,7 @@ def delete_recurring_reservation(reservation_id: int, db: Session = Depends(get_
         endTime=common.endTime,
         room=common.room,
         dayInWeek=recur.dayInWeek,
-        participants=[p.participantName for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
+        participants=[p.name for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
     )
     db.delete(db_reservation.CommonReservationDB)
     db.commit()

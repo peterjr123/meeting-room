@@ -14,10 +14,21 @@ class RoomCreateResponse(RoomCreate):
     class Config:
         from_attributes = True
 
+
+# User
+class UserCreate(BaseModel):
+    name: str
+    department: str
+    password: str
+
+class UserCreateResponse(UserCreate):
+    id: int
+
+
 # Common Reservation
 
 class ReservationCommonCreate(BaseModel):
-    userId: str
+    userId: int
     userName: str
     purpose: str
     details: str

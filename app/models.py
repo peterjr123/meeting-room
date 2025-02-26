@@ -6,9 +6,9 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 class CommonReservationDB(Base):
-    __tablename__ = "reservation_common"
+    __tablename__ = "reservations_common"
     id = Column(Integer, primary_key=True, index=True)
-    userId = Column(String(50), ForeignKey('users.id', ondelete='CASCADE'), index=True)
+    userId = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), index=True)
     purpose = Column(String(50))
     details = Column(String(200))
     startTime = Column(String(10))
@@ -20,7 +20,7 @@ class CommonReservationDB(Base):
 
 class OnetimeReservationDB(Base):
     __tablename__ = "reservations_onetime"
-    id = Column(Integer, ForeignKey('reservation_common.id', ondelete='CASCADE'), primary_key=True, index=True)
+    id = Column(Integer, ForeignKey('reservations_common.id', ondelete='CASCADE'), primary_key=True, index=True)
     date= Column(DateTime)
 
     def __str__(self):
@@ -29,13 +29,15 @@ class OnetimeReservationDB(Base):
 
 class UserDB(Base):
     __tablename__ = "users"
-    id = Column(String(50), primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
     name = Column(String(50), unique=True, index=True)
+    password = Column(String(150))
+    department = Column(String(50))
 
 
 class RecurringReservationDB(Base):
-    __tablename__ = "recurring_reservations"
-    id = Column(Integer, ForeignKey('reservation_common.id', ondelete='CASCADE'), primary_key=True, index=True)
+    __tablename__ = "reservations_recurring"
+    id = Column(Integer, ForeignKey('reservations_common.id', ondelete='CASCADE'), primary_key=True, index=True)
     dayInWeek= Column(String(20))
 
 class RoomDB(Base):
@@ -47,7 +49,7 @@ class RoomDB(Base):
 
 class ParticipantDB(Base):
     __tablename__ = "participants"
-    id = Column(Integer, ForeignKey('reservation_common.id', ondelete='CASCADE'), index=True)
-    participantName = Column(String(50))
+    id = Column(Integer, ForeignKey('reservations_common.id', ondelete='CASCADE'), index=True)
+    name = Column(String(50))
 
-    __table_args__ = (PrimaryKeyConstraint('id', 'participantName'),)
+    __table_args__ = (PrimaryKeyConstraint('id', 'name'),)
