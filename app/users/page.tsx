@@ -14,8 +14,10 @@ export default function UserListPage() {
     const loadMoreData = () => {
         fetchUserList()
             .then((body) => {
+                if (!body) return;
+                
                 const newData: Datatype[] = body.map((user) => {
-                    return { username: user.username as string }
+                    return { username: user.name as string }
                 })
                 setData([...newData]);
             })

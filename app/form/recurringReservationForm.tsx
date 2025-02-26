@@ -38,10 +38,11 @@ export default function RecurringReservationForm({ onPressSubmit, formValues }
 
     async function onSearchParticipant(partialName: string) {
             const users = await fetchUserList();
+            if(!users) return;
             setOptions(
                 users
-                    .filter((user) => user.username.includes(partialName))
-                    .map((user) => { return { value: user.username } })
+                    .filter((user) => user.name.includes(partialName))
+                    .map((user) => { return { value: user.name } })
                     .slice(0, 4)
             )
         }

@@ -66,7 +66,7 @@ export default function Reservation({ userName, createReservationAction, meeting
     }
 
     return (
-        <Flex className="h-full bg-white p-5" vertical gap='middle' >
+        <Flex className="h-full bg-white p-5 max-w-[1200px]" vertical gap='middle' >
             <Card title="select date">
                 <CustomCalendar reservedData={calendarDataAdaptor(reservedData)} onChangeDate={onChangeDate}></CustomCalendar>
             </Card>

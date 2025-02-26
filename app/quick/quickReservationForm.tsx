@@ -8,7 +8,6 @@ import RecurringReservationForm from "../form/recurringReservationForm";
 export default function QuickReservationForm({reservationData, onSubmit}: 
     {reservationData:ReservationRequestData, onSubmit: (data: ReservationRequestData) => void}
 ) {
-    console.log(reservationData)
     const onPressSubmit = (values: ReservationFormData) => {
         onSubmit({
             ...values,

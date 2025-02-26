@@ -5,7 +5,6 @@ import { compareTime, convertDayjsToDateString, convertDayjsToTimeString } from 
 import { Alert } from "antd";
 import QuickReservationForm from "./quickReservationForm";
 import { notFound, redirect } from "next/navigation";
-import RecurringReservationForm from "../form/recurringReservationForm";
 
 export default async function QuickPage() {
     const reservations = await onRequestReservedData(convertDayjsToDateString(dayjs()));
@@ -17,8 +16,8 @@ export default async function QuickPage() {
 
     const possibilities = possibleRerservationData(reservations, roomData.map((data) => data.name));
     if (possibilities.length !== 0) {
-        possibilities[0].userId = user.userId;
-        possibilities[0].userName = user.userName;
+        possibilities[0].userId = user.id;
+        possibilities[0].userName = user.name;
     }
 
 
@@ -68,7 +67,7 @@ function possibleRerservationData(reservationData: ReservedData[], meetingRooms:
         // 현재 시간부터 1시간 뒤까지 각 room에 대한 ReservationData 생성
         return {
             date: convertDayjsToDateString(now),
-            userId: "",
+            userId: -1,
             userName: "",
             startTime: convertDayjsToTimeString(startTime),
             endTime: convertDayjsToTimeString(startTime.add(50, "minute")),

@@ -16,13 +16,17 @@ export default function ReservationForm({ onPressSubmit, formValues }
     }
 ) {
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
-    const [userList, setUserList] = useState<{ username: string}[]>();
+    const [userList, setUserList] = useState<{ username: string }[]>();
     const [form] = Form.useForm();
 
     useEffect(() => {
         const initUserList = async () => {
             const users = await fetchUserList();
-            setUserList([...users]);
+            console.log(users)
+            if (users)
+                setUserList([...users.map(user => {
+                    return { username: user.name }
+                })]);
         }
         initUserList()
     }, [])
@@ -41,7 +45,7 @@ export default function ReservationForm({ onPressSubmit, formValues }
         })
     }
     async function onSearchParticipant(partialName: string) {
-        if(!userList)
+        if (!userList)
             return
         setOptions(
             userList
