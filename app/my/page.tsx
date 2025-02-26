@@ -14,7 +14,6 @@ export default async function MyReservationPage() {
     const user = await getCurrentUserInfo();
     if (!user) redirect("/");
 
-    console.log(reservedData)
     const filteredData = filterMyReservedData(reservedData, user.name);
     const filteredRecurringData = filterMyRecurringData(recurringResevedData, user.name);
 

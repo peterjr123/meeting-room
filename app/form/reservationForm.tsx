@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { ReservationFormData } from "../lib/data/type";
-import { Form, Input, Button, AutoComplete, AutoCompleteProps } from "antd";
+import { Form, Input, Button, AutoComplete, AutoCompleteProps, Cascader } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { endTimeDisplayDecode, endTimeDisplayEncode } from "../lib/utils";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { fetchUserList } from "../lib/data/api";
+import ParticipantsCascaderItem from "./participantCascaderItem";
 const { Item, List } = Form;
 
 export default function ReservationForm({ onPressSubmit, formValues }
@@ -15,21 +16,7 @@ export default function ReservationForm({ onPressSubmit, formValues }
         formValues: ReservationFormData
     }
 ) {
-    const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
-    const [userList, setUserList] = useState<{ username: string }[]>();
     const [form] = Form.useForm();
-
-    useEffect(() => {
-        const initUserList = async () => {
-            const users = await fetchUserList();
-            console.log(users)
-            if (users)
-                setUserList([...users.map(user => {
-                    return { username: user.name }
-                })]);
-        }
-        initUserList()
-    }, [])
     useEffect(() => {
 
         form.setFieldsValue({
@@ -41,18 +28,9 @@ export default function ReservationForm({ onPressSubmit, formValues }
     function onFinish(formValues: ReservationFormData) {
         onPressSubmit({
             ...formValues,
+            participants: formValues.participants.map((participant) => participant.at(1) as string),
             endTime: endTimeDisplayDecode(formValues.endTime)
         })
-    }
-    async function onSearchParticipant(partialName: string) {
-        if (!userList)
-            return
-        setOptions(
-            userList
-                .filter((user) => user.username.includes(partialName))
-                .map((user) => { return { value: user.username } })
-                .slice(0, 4)
-        )
     }
 
     return (
@@ -84,55 +62,7 @@ export default function ReservationForm({ onPressSubmit, formValues }
             <Item label="user" name="userName">
                 <Input readOnly />
             </Item>
-            <Item label="participants" name="participants">
-                <List name="participants">
-                    {(fields, { add, remove }) => (
-                        <>
-                            {fields.map((field, index) => (
-                                <div key={index} className="flex items-center mb-3">
-                                    <Item
-                                        className="flex-1"
-                                        style={{ marginBottom: 0 }}
-                                        {...field}
-                                        validateTrigger={['onChange', 'onBlur']}
-                                        rules={[
-                                            {
-                                                required: true,
-                                                whitespace: true,
-                                                message: "Please input participant's name or delete this field.",
-                                            },
-                                        ]}
-                                    >
-                                        {/* <Input placeholder="participant name" /> */}
-                                        <AutoComplete placeholder="participant name" options={options} onSearch={onSearchParticipant} />
-                                    </Item>
-                                    {
-                                        (fields.length > 0)
-                                            ?
-                                            (<div className="w-7 flex justify-center">
-                                                <MinusCircleOutlined
-                                                    className="dynamic-delete-button"
-                                                    onClick={() => remove(field.name)} />
-                                            </div>)
-                                            : null
-                                    }
-                                </div>
-                            ))}
-                            <Item key={"button"}>
-                                <Button
-                                    type="dashed"
-                                    onClick={() => add()}
-                                    className="w-full"
-                                    icon={<PlusOutlined />}
-                                >
-                                    Add field
-                                </Button>
-                            </Item>
-                        </>
-                    )}
-                </List>
-            </Item>
-
+            <ParticipantsCascaderItem />
             <Item label="purpose" name="purpose">
                 <Input placeholder="enter the text..." />
             </Item>
