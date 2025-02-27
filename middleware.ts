@@ -2,6 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { decrypt } from '@/app/lib/session/utils'
 import { cookies } from 'next/headers'
+import { getUser } from './app/lib/session/api'
  
 
 // 1. Specify public routes
@@ -17,7 +18,7 @@ export default async function middleware(req: NextRequest) {
   const session = await decrypt(cookie)
  
   // 4. Redirect to /login if the user is not authenticated
-  if (!isPublicRoute && !session?.userId) {
+  if (!isPublicRoute && !(await getUser())) {
     return NextResponse.redirect(new URL('/auth/login', req.nextUrl))
   }
  

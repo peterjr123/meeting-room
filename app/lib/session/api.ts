@@ -61,14 +61,14 @@ export const verifySession = cache(async () => {
 export const getUser = cache(async () => {
     const session = await verifySession()
     if (!session) return null
-   
+
     try {
-      const user = await fetchUserData(session.userId as number);
-   
-      return user
+        const user = await fetchUserData(session.userId as number);
+        // console.log("[getUser]: ",user)
+        return user
     } catch (error) {
-      console.log('Failed to fetch user')
-      return null
+        console.log('Failed to fetch user')
+        return null
     }
-  })
+})
 

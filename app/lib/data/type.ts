@@ -86,6 +86,12 @@ export type UserData = {
     department: string,
 }
 
+// 부서
+export type DepartmentData = {
+    id: number,
+    name: string
+}
+
 // utils
 export type TimeSlot = {
     key: number,

@@ -1,7 +1,7 @@
 'use server'
 
 import { currentUser, clerkClient, User } from "@clerk/nextjs/server";
-import { ReccuringReservationData, ReservationRequestData, ReservedData, RoomData, TimeString, UserData } from "./type";
+import { DepartmentData, ReccuringReservationData, ReservationRequestData, ReservedData, RoomData, TimeString, UserData } from "./type";
 import dayjs, { Dayjs } from "dayjs";
 import { convertDayjsToDateString, roundDownDayjsToNearestTenMinutes } from "../utils";
 import { notFound } from "next/navigation";
@@ -107,6 +107,61 @@ export async function getCurrentUserInfo(): Promise<UserData | undefined> {
     name: user.name as string,
     password: "not allowed",
     department: user.department
+  }
+}
+
+// 부서 API
+export async function fetchDepartmentList(): Promise<DepartmentData[] | undefined> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/departments/`, { cache: 'no-store' });
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error)
+    return undefined;
+  }
+}
+
+export async function deleteDepartmentData(departmentId: number) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/departments/${departmentId}`, { method: "DELETE" });
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error)
+    return undefined;
+  }
+}
+
+export async function createDepartmentData(departmentName: string) {
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/departments/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: departmentName,
+      }),
+    });
+    if (!response.ok) {
+      console.log("[createDepartmentData] ", await response.text())
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error);
+    return undefined;
   }
 }
 
@@ -320,7 +375,7 @@ export async function fetchUserData(userId: number) {
   try {
     const response = await fetch(`${API_BASE_URL}/users/${userId}/`, { cache: 'no-store' });
     if (!response.ok) {
-      console.log(response);
+      // console.log("[fetchUserData]: ", await response.text());
       return undefined;
     }
     return response.json();
@@ -345,15 +400,6 @@ export async function fetchUserList(): Promise<UserData[] | undefined> {
     return undefined;
   }
 }
-
-// department
-export async function fetchDepartmentData(): Promise<{departments: string[]}> {
-  return {
-    departments: ["부서1", "부서2"]
-  }
-}
-
-
 
 
 // admin authorization

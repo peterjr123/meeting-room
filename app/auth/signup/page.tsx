@@ -1,7 +1,7 @@
 'use client'
 
 import { signup } from "@/app/lib/authentication/api";
-import { fetchDepartmentData } from "@/app/lib/data/api";
+import { fetchDepartmentList } from "@/app/lib/data/api";
 import { Form, Input, Button, Select, Card, Alert } from "antd";
 import { useEffect, useState } from "react";
 const { Item } = Form;
@@ -15,8 +15,9 @@ export default function SignUpPage() {
 
     useEffect(() => {
         const initDepartments = async () => {
-            const departments = await fetchDepartmentData();
-            setDepartments([...departments.departments]);
+            const departments = await fetchDepartmentList();
+            if(!departments) return;
+            setDepartments([...departments.map((dept) => dept.name)]);
         }
         initDepartments()
     }, [])
@@ -64,7 +65,8 @@ export default function SignUpPage() {
                     <Item label="department" name="department" hasFeedback rules={[{ required: true }]}>
                         <Select>
                             {departments.map((department) => {
-                                return (<Option key={department} value={department}>{department}</Option>)
+                                if(department !== "ADMIN")
+                                    return (<Option key={department} value={department}>{department}</Option>)
                             })}
                         </Select>
                     </Item>
