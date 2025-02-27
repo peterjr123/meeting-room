@@ -36,3 +36,12 @@ docker compose up -d --build
     ```bash
     docker container ls
     ```
+
+## 실행시 오류
+- ### docker container ls에서 meeting_room_fastapi가 정상적으로 실행되지 않은 경우   
+  FastAPI의 경우 MySQL이 실행되기 전에 Load된 경우에 Connection 연결에 실패할 수 있습니다.  
+  Docker Compose에서 health check를 수행하지 있으나, 특히 첫 compose up에서는 사양에 따라 load 시간이 오래 걸려 실패할 수 있습니다. 
+  ```bash
+    docker logs meeting_room_fastapi
+    ```
+     해당 명령어를 통해 Connection Refused 에러가 발생한 것을 확인한 경우 compose down 후 다시 compose up을 시도해 주시길 바랍니다.

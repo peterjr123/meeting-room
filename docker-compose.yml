@@ -23,8 +23,8 @@ services:
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=dsm1234!
       - ADMIN_DEPARTMENT=ADMIN
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     depends_on: 
       mysql:
         condition: service_healthy
@@ -37,8 +37,8 @@ services:
       MYSQL_DATABASE: nextjs_db
       MYSQL_USER: myuser
       MYSQL_PASSWORD: mypassword
-    ports:
-      - "3306:3306"
+    expose:
+      - "3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
