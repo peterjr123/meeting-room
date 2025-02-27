@@ -4,6 +4,7 @@ import '@ant-design/v5-patch-for-react-19';
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import SideNav from './sideNav';
 import Nav from './nav';
+import { UserProvider } from './context/userContext';
 
 export default function RootLayout({
   children,
@@ -11,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <UserProvider>
       <html lang="en">
         <body>
           <AntdRegistry>
@@ -33,6 +34,6 @@ export default function RootLayout({
           </AntdRegistry>
         </body>
       </html>
-    </ClerkProvider>
+    </UserProvider>
   );
 }

@@ -1,35 +1,30 @@
-'use client'
-
-import { useEffect } from "react";
-import { ReservationFormData } from "../lib/data/type";
 import { Form, Input, Button, AutoComplete, AutoCompleteProps, Cascader } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { endTimeDisplayDecode, endTimeDisplayEncode } from "../lib/utils";
 import ParticipantsCascaderItem from "./participantCascaderItem";
 import RoomSelector from "../ui/common/roomSelecter";
-const { Item, List } = Form;
+import { useEffect } from "react";
+const { Item } = Form;
 
-export default function ReservationForm({ onPressSubmit, formValues }
-    : {
-        onPressSubmit: (formValues: ReservationFormData) => void,
-        formValues: ReservationFormData
-    }
-) {
+type CommonReservationFormData = {
+    startTime: string,
+    endTime: string,
+    room: string,
+    userName: string,
+    participants: string[]
+    purpose: string,
+    details: string,
+} & {
+    [key: string]: unknown
+}
+
+export default function CommonReservationForm({ children, formValues, onFinish }: { children: React.ReactNode, formValues: CommonReservationFormData & {}, onFinish: (formValues: any) => void }) {
     const [form] = Form.useForm();
+
     useEffect(() => {
         form.setFieldsValue({
             ...formValues,
-            endTime: endTimeDisplayEncode(formValues.endTime)
         });
     }, [formValues, form])
-
-    function onFinish(formValues: ReservationFormData) {
-        onPressSubmit({
-            ...formValues,
-            participants: formValues.participants.map((participant) => participant.at(1) as string),
-            endTime: endTimeDisplayDecode(formValues.endTime)
-        })
-    }
 
     return (
         <Form
@@ -39,10 +34,8 @@ export default function ReservationForm({ onPressSubmit, formValues }
             labelCol={{ span: 8 }}
             style={{ maxWidth: 600 }}
             onFinish={onFinish}>
-            <Item label="date" name="date">
-                <Input readOnly />
-            </Item>
-
+            
+            {children}
             <Item label="time">
                 <div className="flex">
                     <Item className="inline-block flex-grow" style={{ marginBottom: 0 }} name="startTime">
@@ -55,7 +48,7 @@ export default function ReservationForm({ onPressSubmit, formValues }
                 </div>
             </Item>
             <Item label="room" name="room">
-                <RoomSelector value={formValues.room}/>
+                <RoomSelector value={formValues.room} />
             </Item>
             <Item label="user" name="userName">
                 <Input readOnly />

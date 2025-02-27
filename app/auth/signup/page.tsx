@@ -2,21 +2,20 @@
 
 import { signup } from "@/app/lib/authentication/api";
 import { fetchDepartmentList } from "@/app/lib/data/api";
-import { Form, Input, Button, Select, Card, Alert } from "antd";
+import SignUpForm from "@/app/ui/auth/signUpForm";
+import { Card } from "antd";
+import FilckerAlert from "@/app/ui/result/filckerAlert";
 import { useEffect, useState } from "react";
-const { Item } = Form;
-const { Option } = Select;
-const { Password } = Input;
+
 
 export default function SignUpPage() {
-    const [signupStatus, setSignupStatus] = useState<"default" | "failed">("default");
-
+    const [alertDisplay, setAlertDisplay] = useState<boolean>(false);
     const [departments, setDepartments] = useState<string[]>([]);
 
     useEffect(() => {
         const initDepartments = async () => {
             const departments = await fetchDepartmentList();
-            if(!departments) return;
+            if (!departments) return;
             setDepartments([...departments.map((dept) => dept.name)]);
         }
         initDepartments()
@@ -30,50 +29,20 @@ export default function SignUpPage() {
             department: formValues.department
         })
         if (result.message) {
-            setSignupStatus("failed")
+            setAlertDisplay(true)
         }
     }
 
     return (
         <>
-            {(signupStatus === "failed")
-                ?
-                <div className="mb-7">
-                    <Alert
-                        message="계정 등록 실패"
-                        description="해당 사용자 name이 이미 존재합니다."
-                        type="error"
-                        showIcon
-                    />
-                </div>
-                :
-                null
-            }
+            <FilckerAlert
+                className="mb-7"
+                message="계정 등록 실패"
+                description="해당 사용자 name이 이미 존재합니다."
+                type="error"
+                display={alertDisplay} />
             <Card title="계정 등록">
-                <Form
-                    name="signup-form"
-                    wrapperCol={{ span: 16 }}
-                    labelCol={{ span: 8 }}
-                    style={{ maxWidth: 600 }}
-                    onFinish={onFinish}>
-                    <Item label="이름" name="name" validateTrigger="onBlur" hasFeedback rules={[{ required: true }]}>
-                        <Input placeholder="username..." />
-                    </Item>
-                    <Item label="password" name="password" hasFeedback rules={[{ required: true }]}>
-                        <Password placeholder="password..." />
-                    </Item>
-                    <Item label="department" name="department" hasFeedback rules={[{ required: true }]}>
-                        <Select>
-                            {departments.map((department) => {
-                                if(department !== "ADMIN")
-                                    return (<Option key={department} value={department}>{department}</Option>)
-                            })}
-                        </Select>
-                    </Item>
-                    <Item className="float-end" label={null}>
-                        <Button type="primary" htmlType="submit">등록</Button>
-                    </Item>
-                </Form>
+                <SignUpForm onFinish={onFinish} departments={departments.filter((dept) => dept !== "ADMIN")} />
             </Card>
         </>
 

@@ -1,5 +1,5 @@
 import Reservation from "./reservation";
-import { fetchReservationData, createReservationData, getCurrentUserInfo, fetchRoomData, createRecurringReservationData, fetchFollowingReservationData, fetchRecurringReservationData, onRequestReservedData } from "../lib/data/api";
+import { fetchReservationData, createReservationData, fetchRoomData, createRecurringReservationData, fetchFollowingReservationData, fetchRecurringReservationData, onRequestReservedData } from "../lib/data/api";
 import { ReccuringReservationData, ReservationFormData, ReservedData, TimeString } from "../lib/data/type";
 import { notFound, redirect } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";

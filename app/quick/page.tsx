@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { createReservationData, fetchFollowingReservationData, fetchReservationData, fetchRoomData, getCurrentUserInfo, onRequestReservedData } from "../lib/data/api";
+import { createReservationData, fetchRoomData, getCurrentUserInfo, onRequestReservedData } from "../lib/data/api";
 import { ReservationRequestData, ReservedData, TimeString } from "../lib/data/type";
 import { compareTime, convertDayjsToDateString, convertDayjsToTimeString } from "../lib/utils";
 import { Alert } from "antd";

@@ -2,26 +2,13 @@
 import { Menu, MenuProps } from "antd";
 import Link from "next/link";
 import { UserOutlined, LogoutOutlined, LoginOutlined, FormOutlined } from "@ant-design/icons";
-import { UserData } from "./lib/data/type";
-import { useEffect, useState } from "react";
-import { logout, useUser } from "./lib/authentication/api";
-import { usePathname } from "next/navigation";
-
+import { logout } from "./lib/authentication/api";
+import { useUser } from "./context/userContext";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 export default function NavMenu() {
-    const [user, setUser] = useState<UserData>();
-    const pathname = usePathname()
-
-    const fetchUser = async () => {
-        const user = await useUser();
-        setUser(user);
-    }
-
-    useEffect(() => {
-        fetchUser()
-    }, [pathname]) 
+    const { user } = useUser();
 
     const items: MenuItem[]
         = (!user ? [

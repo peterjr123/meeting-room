@@ -1,11 +1,11 @@
 'use server'
 
-import { currentUser, clerkClient, User } from "@clerk/nextjs/server";
 import { DepartmentData, ReccuringReservationData, ReservationRequestData, ReservedData, RoomData, TimeString, UserData } from "./type";
 import dayjs, { Dayjs } from "dayjs";
 import { convertDayjsToDateString, roundDownDayjsToNearestTenMinutes } from "../utils";
 import { notFound } from "next/navigation";
 import { getUser } from "../session/api";
+import { cache } from "react";
 
 const API_BASE_URL = process.env.API_BASE_URL; // FastAPI 서버 주소
 const O_AUTH_CLIENT_ID = process.env.O_AUTH_CLIENT_ID;
@@ -98,7 +98,7 @@ export async function deleteReservationData(reservationId: number) {
 }
 
 
-export async function getCurrentUserInfo(): Promise<UserData | undefined> {
+export const getCurrentUserInfo = cache(async (): Promise<UserData | undefined>  => {
   const user = await getUser();
   if (!user) return undefined;
 
@@ -108,7 +108,7 @@ export async function getCurrentUserInfo(): Promise<UserData | undefined> {
     password: "not allowed",
     department: user.department
   }
-}
+});
 
 // 부서 API
 export async function fetchDepartmentList(): Promise<DepartmentData[] | undefined> {
@@ -142,7 +142,6 @@ export async function deleteDepartmentData(departmentId: number) {
 }
 
 export async function createDepartmentData(departmentName: string) {
-
   try {
     const response = await fetch(`${API_BASE_URL}/departments/`, {
       method: "POST",

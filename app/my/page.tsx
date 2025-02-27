@@ -5,12 +5,12 @@ import { notFound, redirect } from "next/navigation";
 import ReservationInfo from "./reservationInfo";
 import dayjs from "dayjs";
 import RecurringReservationInfo from "./recurringReservationInfo";
+import { useUser } from "../context/userContext";
 
 export default async function MyReservationPage() {
     const reservedData = await fetchFollowingReservationData(dayjs());
     const recurringResevedData = await fetchRecurringReservationData();
     if(!reservedData || !recurringResevedData) notFound();
-
     const user = await getCurrentUserInfo();
     if (!user) redirect("/");
 

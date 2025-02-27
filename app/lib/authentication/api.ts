@@ -4,8 +4,7 @@ import { redirect } from "next/navigation"
 import { createSession, deleteSession, getUser } from "@/app/lib/session/api"
 import { createUserData, fetchUserList } from "../data/api"
 import { UserData } from "../data/type"
-
-const bcrypt = require('bcrypt')
+import bcrypt from "bcryptjs"
 
 export async function signup(userData: UserData) {
   // 1. Validate form fields
@@ -54,7 +53,9 @@ export async function login(username: string, password: string) {
     redirect("/")
   }
   else {
-    return null
+    return {
+      message: 'user not found',
+    }
   }
 } 
 
@@ -67,8 +68,4 @@ export async function logout() {
 
 async function hashPassword(password: string) {
   return await bcrypt.hash(password, 10)
-}
-
-export async function useUser() {
-  return getUser();
 }

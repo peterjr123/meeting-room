@@ -6,10 +6,11 @@ import { Alert, Button, List } from 'antd'
 import { DepartmentData } from "../lib/data/type";
 import { useEffect, useState } from "react";
 import DepartmentList from "./departmentList";
+import FilckerAlert from "../ui/result/filckerAlert";
 
 export default function DepartementPage() {
     const [departments, setDepartments] = useState<DepartmentData[]>();
-    const [createStatus, setCreateStatus] = useState<"default" | "failed">("default");
+    const [alertDisplay, setAlertDisplay] = useState<boolean>(false);
     async function updateDepartments() {
         const departments = await fetchDepartmentList();
         if (!departments) return;
@@ -22,9 +23,9 @@ export default function DepartementPage() {
     async function onFinish(formData: {name: string}) {
         const result = await createDepartmentData(formData.name);
         if(!result)
-            setCreateStatus("failed")
+            setAlertDisplay(true)
         else
-            setCreateStatus("default")
+            setAlertDisplay(false)
         updateDepartments();
     }
 
@@ -38,19 +39,12 @@ export default function DepartementPage() {
 
     return (
         <>
-            {(createStatus === "failed")
-                ?
-                <div className="mb-7">
-                    <Alert
-                        message="부서 등록 실패"
-                        description="동일한 이름의 부서가 이미 존재합니다."
-                        type="error"
-                        showIcon
-                    />
-                </div>
-                :
-                null
-            }
+            <FilckerAlert
+                className="mb-7"
+                message="부서 등록 실패"
+                description="동일한 이름의 부서가 이미 존재합니다."
+                display={alertDisplay}
+                type="error" />
             <Card title="부서 목록">
                 <DepartmentList departments={departments} onDelete={onDeleteDepartment}/>
             </Card>
