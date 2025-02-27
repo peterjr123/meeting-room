@@ -15,13 +15,13 @@ chmod 500 ./*.sh # 스크립트 권한 설정
 ./delete.sh # 이전 폴더 삭제
 ```
 
-## 5. Docker 설치 (필요한 경우)
+## 3. Docker 설치 (필요한 경우)
 Docker가 설치되어 있지 않은 환경이라면 아래 스크립트를 실행하여 Docker를 설치합니다
 ```bash
 ./install_docker
 ```
 
-## 6. 애플리케이션 실행
+## 4. 애플리케이션 실행
 Docker Compose를 사용하여 애플리케이션을 빌드하고 백그라운드에서 실행합니다
 ```bash
 docker compose up -d --build
