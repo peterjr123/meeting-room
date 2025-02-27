@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from ..models import UserDB
 from ..database import get_db
 from ..schemas import UserCreateResponse, UserCreate
+from ..init_admin import is_admin_user, is_admin_department
+from pymysql.constants.ER import *
 
 
 router = APIRouter()
@@ -13,12 +15,16 @@ router = APIRouter()
 def create_user(creation: UserCreate, db: Session = Depends(get_db)):
     db_user = UserDB(**creation.model_dump())
 
+    if is_admin_department(db, db_user.department):
+        raise HTTPException(status_code=404, detail="Cannot Create Admin User")
+
     try:
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
-    except IntegrityError:
-        raise HTTPException(status_code=404, detail="Duplicated User")
+    except IntegrityError as e:
+        print(e)
+        raise HTTPException(status_code=404, detail="Bad Request")
     
     return db_user
 
@@ -56,6 +62,9 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db_user = db.query(UserDB).filter(UserDB.id == user_id).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User Not Found")
+
+    if is_admin_user(db, db_user.name):
+        raise HTTPException(status_code=404, detail="Cannot Delete Admin User")
 
     db.delete(db_user)
     db.commit()

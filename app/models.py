@@ -32,8 +32,12 @@ class UserDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(50), unique=True, index=True)
     password = Column(String(150))
-    department = Column(String(50))
+    department = Column(String(50), ForeignKey('departments.name', ondelete='CASCADE', onupdate='CASCADE'))
 
+class DepartmentDB(Base):
+    __tablename__ = "departments"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), unique=True, index=True)
 
 class RecurringReservationDB(Base):
     __tablename__ = "reservations_recurring"

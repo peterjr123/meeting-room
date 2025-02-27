@@ -25,8 +25,15 @@ class UserCreateResponse(UserCreate):
     id: int
 
 
-# Common Reservation
+# Department
+class DepartmentCreate(BaseModel):
+    name: str
 
+class DepartmentCreateResponse(DepartmentCreate):
+    id: int
+
+
+# Common Reservation
 class ReservationCommonCreate(BaseModel):
     userId: int
     userName: str
@@ -38,7 +45,6 @@ class ReservationCommonCreate(BaseModel):
     room: str
 
 # Onetime
-
 class OnetimeReservationCreate(ReservationCommonCreate):
     date: str
 
@@ -52,7 +58,6 @@ class OnetimeReservationResponse(OnetimeReservationCreate):
         from_attributes = True
 
 # Recurring
-
 class RecurringReservationCreate(ReservationCommonCreate):
     dayInWeek: str
 
@@ -67,7 +72,6 @@ class RecurringReservationResponse(RecurringReservationCreate):
 
 
 # Participant
-
 class ParticipantsCreate(BaseModel):
     # str의 list
     participants : List[str]
