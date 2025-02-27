@@ -47,7 +47,7 @@ def create_reservation(reservation: OnetimeReservationCreate, db: Session = Depe
     # 참여자 정보 저장
     try:
         for participant_name in reservation.participants:
-            db.add(ParticipantDB(id=db_reservation.id, participantName=participant_name))
+            db.add(ParticipantDB(id=db_reservation.id, name=participant_name))
         db.commit()
     except Exception as e:
         db.rollback()
@@ -84,7 +84,7 @@ def read_reservations(skip: int = 0, limit: int = 1000, db: Session = Depends(ge
             startTime=common.startTime,
             endTime=common.endTime,
             room=common.room,
-            participants=[p.participantName for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
+            participants=[p.name for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
             date=to_date_string(onetime.date)
         )
         for onetime, common, user in reservations
@@ -120,7 +120,7 @@ def get_upcoming_reservations(
             endTime=common.endTime,
             room=common.room,
             date=to_date_string(onetime.date),
-            participants=[p.participantName for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
+            participants=[p.name for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
         )
         for onetime, common, user in upcoming_reservations
     ]
@@ -143,7 +143,7 @@ def delete_reservation(reservation_id: int, db: Session = Depends(get_db)):
         endTime=common.endTime,
         room=common.room,
         date=to_date_string(onetime.date),
-        participants=[p.participantName for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
+        participants=[p.name for p in db.query(ParticipantDB).filter(ParticipantDB.id == common.id).all()],
     )
     db.delete(db_reservation.CommonReservationDB)
     db.commit()

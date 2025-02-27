@@ -11,7 +11,7 @@ router = APIRouter()
 def create_participants(reservation_id: int, creation: ParticipantsCreate, db: Session = Depends(get_db)):
     # 예약 생성
     for participant_name in creation.participants:
-        db.add(ParticipantDB(id=reservation_id, participantName=participant_name))
+        db.add(ParticipantDB(id=reservation_id, name=participant_name))
         db.commit()
     
     return { "message": "Participants created successfully"}
@@ -21,5 +21,5 @@ def create_participants(reservation_id: int, creation: ParticipantsCreate, db: S
 def read_participants(reservation_id: int, db: Session = Depends(get_db)):
     participants = db.query(ParticipantDB).filter(ParticipantDB.id == reservation_id).all()
     return ParticipantsCreate(
-        participantsList=[p.participantName for p in participants]
+        participantsList=[p.name for p in participants]
     )
