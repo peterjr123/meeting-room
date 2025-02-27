@@ -5,13 +5,12 @@ services:
     container_name: meeting_room_nextjs
     image: nextjs-docker
     build: ./nextjs-meetingroom
-    env_file:
-      - ./nextjs-meetingroom/.env.local
     ports:
       - "3000:3000"
     environment:
       - TZ=Asia/Seoul
       - API_BASE_URL=http://fastapi:8000 # FastAPI 서비스와 통신
+      - SESSION_SECRET=kFusfikiDG/E18VPhbDG+uPhc6wW1s9kmeNBNlVoqE4=
     depends_on:
       - fastapi
 
@@ -21,6 +20,9 @@ services:
     build: ./meeting-room-api
     environment:
       - SQLALCHEMY_DATABASE_URL=mysql+pymysql://root:rootpassword@mysql:3306/nextjs_db
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=dsm1234!
+      - ADMIN_DEPARTMENT=ADMIN
     ports:
       - "8000:8000"
     depends_on: 
