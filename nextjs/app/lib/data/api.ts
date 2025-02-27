@@ -1,10 +1,11 @@
 'use server'
 
-import { currentUser, clerkClient } from "@clerk/nextjs/server";
-import { ReccuringReservationData, ReservationRequestData, ReservedData, RoomData, TimeString } from "./type";
+import { DepartmentData, ReccuringReservationData, ReservationRequestData, ReservedData, RoomData, TimeString, UserData } from "./type";
 import dayjs, { Dayjs } from "dayjs";
 import { convertDayjsToDateString, roundDownDayjsToNearestTenMinutes } from "../utils";
 import { notFound } from "next/navigation";
+import { getUser } from "../session/api";
+import { cache } from "react";
 
 const API_BASE_URL = process.env.API_BASE_URL; // FastAPI 서버 주소
 const O_AUTH_CLIENT_ID = process.env.O_AUTH_CLIENT_ID;
@@ -97,13 +98,69 @@ export async function deleteReservationData(reservationId: number) {
 }
 
 
-export async function getCurrentUserInfo(): Promise<{ userId: string, userName: string } | undefined> {
-  const user = await currentUser();
+export const getCurrentUserInfo = cache(async (): Promise<UserData | undefined>  => {
+  const user = await getUser();
   if (!user) return undefined;
 
   return {
-    userId: user.id,
-    userName: user.username as string,
+    id: user.id,
+    name: user.name as string,
+    password: "not allowed",
+    department: user.department
+  }
+});
+
+// 부서 API
+export async function fetchDepartmentList(): Promise<DepartmentData[] | undefined> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/departments/`, { cache: 'no-store' });
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error)
+    return undefined;
+  }
+}
+
+export async function deleteDepartmentData(departmentId: number) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/departments/${departmentId}`, { method: "DELETE" });
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error)
+    return undefined;
+  }
+}
+
+export async function createDepartmentData(departmentName: string) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/departments/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: departmentName,
+      }),
+    });
+    if (!response.ok) {
+      console.log("[createDepartmentData] ", await response.text())
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error);
+    return undefined;
   }
 }
 
@@ -271,44 +328,88 @@ export async function onRequestReservedData(dateString: string): Promise<Reserve
   // 1. 1개월 이전의 date로 부터 followup reservation 구하기
   const oneTimeReservations = await fetchFollowingReservationData(date.subtract(1, "month"));
   if (!oneTimeReservations) notFound();
-  console.log(oneTimeReservations)
 
   const recurringReservations = await fetchRecurringReservationData();
   if (!recurringReservations) notFound();
-  console.log(recurringReservations);
 
   const convertedReservations = recurringReservations.flatMap((reservation) => {
     return convertRecurringToOnetime(reservation, date.subtract(1, "month"), date.add(1, "month"));
   })
-  console.log(convertedReservations)
 
   return [...oneTimeReservations, ...convertedReservations];
   // return [...oneTimeReservations];
 }
 
 
+// User CRUD
 
+export async function createUserData(user: UserData) {
+  console.log(user)
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: user.name,
+        password: user.password,
+        department: user.department
+      }),
+    });
+    if (!response.ok) {
+      console.log(await response.text());
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error);
+    return undefined;
+  }
+}
+
+export async function fetchUserData(userId: number) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/`, { cache: 'no-store' });
+    if (!response.ok) {
+      // console.log("[fetchUserData]: ", await response.text());
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error)
+    return undefined;
+  }
+}
+
+export async function fetchUserList(): Promise<UserData[] | undefined> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/`, { cache: 'no-store' });
+    if (!response.ok) {
+      console.log(response);
+      return undefined;
+    }
+    return response.json();
+  }
+  catch (error) {
+    console.log(error)
+    return undefined;
+  }
+}
 
 
 // admin authorization
 export async function isAuthorizedAdmin() {
-  const user = await currentUser();
-  if (user && user.username === "admin")
+  const user = await getUser()
+  if (user && user.name === "admin")
     return true;
   return false;
 }
 
-export async function fetchUserList() {
-  const client = await clerkClient()
-  const users = await client.users.getUserList();
-  const tmp = users.data.map((user) => {
-    return {
-      username: (user.username ? user.username : "not defined")
-    }
-  });
-  console.log(tmp)
-  return tmp;
-}
+
 
 // oauth 인증
 
@@ -361,6 +462,7 @@ export async function validateAccessToken(accessToken: string) {
   console.log(result);
   return result;
 }
+
 
 
 

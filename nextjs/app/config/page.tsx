@@ -1,9 +1,8 @@
 import { forbidden, notFound, redirect } from "next/navigation";
 import RoomInfo from "./roomInfo";
-import { createRoomData, deleteRoomData, fetchFollowingReservationData, fetchRoomData, getCurrentUserInfo, isAuthorizedAdmin, updateRoomData } from "../lib/data/api";
+import { createRoomData, deleteRoomData, fetchFollowingReservationData, fetchRoomData, isAuthorizedAdmin, updateRoomData } from "../lib/data/api";
 import { Button, Card, Divider } from "antd";
 import { RoomData } from "../lib/data/type";
-import { PlusCircleOutlined } from "@ant-design/icons";
 import RoomCreateForm from "../form/roomCreateForm";
 
 export default async function ConfigPage() {

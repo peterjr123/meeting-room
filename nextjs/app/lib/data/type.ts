@@ -10,7 +10,7 @@ export type ReservedData = {
 // 예약 요청 데이터에 대한 타입
 export type ReservationRequestData = {
     date: DateString,
-    userId: string,
+    userId: number,
     userName: string,
     purpose: string,
     details: string,
@@ -69,7 +69,7 @@ export type ReccuringReservationData = {
     id: number,
     dayInWeek: string,
     userName: string,
-    userId: string,
+    userId: number,
     purpose: string,
     details: string,
     startTime: TimeString | ReservationFormPlaceholder["startTime"],
@@ -78,8 +78,23 @@ export type ReccuringReservationData = {
     participants: string[]
 }
 
+// 사용자
+export type UserData = {
+    id: number,
+    name: string,
+    password: string,
+    department: string,
+}
+
+// 부서
+export type DepartmentData = {
+    id: number,
+    name: string
+}
+
 // utils
 export type TimeSlot = {
     key: number,
     time: TimeString,
 }
+

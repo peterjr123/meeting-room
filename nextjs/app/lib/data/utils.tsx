@@ -32,7 +32,6 @@ export function convertToDatasource (reservedData: TableReservedData[], meetingR
             );
 
             if (reserved) {
-                console.log(reserved)
                 // 예약 시작 시간인 경우
                 const colSpan = reserved.duration / 10;
                 row[slot.time] = {
@@ -83,7 +82,10 @@ export function getTableColumns (CellComponent: React.ElementType, meetingRooms:
             render: (value: TableCell, record: TableRow, index: number) => (
                 // TODO: 현재 예약된 시간을 확인하기 위해 colSpan이 1인지 검사 -> 10분 예약은 불가능
                 // 더 나은 판별 방법을 사용할 필요가 있음
+                <div onClick={() => console.log("click")}>
                 <CellComponent reserved={(record[slot.time] as TableCell).colSpan === 1 ? false : true} time={slot.time} room={meetingRooms[index]}>{value.text}</CellComponent>
+
+                </div>
             ),
             onCell: (record: TableRow, _: any) => {
                 return { colSpan: (record[slot.time] as TableCell).colSpan }
@@ -119,3 +121,5 @@ export function toPathParams(reservationData: ReservationRequestData) {
         })
         .join('&');
 }
+
+

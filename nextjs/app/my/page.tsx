@@ -5,24 +5,23 @@ import { notFound, redirect } from "next/navigation";
 import ReservationInfo from "./reservationInfo";
 import dayjs from "dayjs";
 import RecurringReservationInfo from "./recurringReservationInfo";
+import { useUser } from "../context/userContext";
 
 export default async function MyReservationPage() {
     const reservedData = await fetchFollowingReservationData(dayjs());
     const recurringResevedData = await fetchRecurringReservationData();
     if(!reservedData || !recurringResevedData) notFound();
-
     const user = await getCurrentUserInfo();
     if (!user) redirect("/");
 
-    console.log(reservedData)
-    const filteredData = filterMyReservedData(reservedData, user.userName);
-    const filteredRecurringData = filterMyRecurringData(recurringResevedData, user.userName);
+    const filteredData = filterMyReservedData(reservedData, user.name);
+    const filteredRecurringData = filterMyRecurringData(recurringResevedData, user.name);
 
     async function onDeleteReserved(reservedData: ReservedData) {
         'use server'
         const result = await deleteReservationData(reservedData.id);
         if (result)
-            redirect(`/result/delete?type=success&${result.purpose}`)
+            redirect(`/result/delete?type=success`)
         else
             redirect(`/result/delete?type=failed`)
     } 
@@ -30,7 +29,7 @@ export default async function MyReservationPage() {
         'use server'
         const result = await deleteRecurringReservationData(reservedData.id);
         if (result)
-            redirect(`/result/delete?type=success&${result.purpose}`)
+            redirect(`/result/delete?type=success`)
         else
             redirect(`/result/delete?type=failed`)
     }
@@ -41,7 +40,7 @@ export default async function MyReservationPage() {
                     filteredData.map((data, index) => {
                         return (
                             <li key={index}>
-                                <ReservationInfo reservedData={data} onDeleteReserved={onDeleteReserved} isOwned={data.userName === user.userName}/>
+                                <ReservationInfo reservedData={data} onDeleteReserved={onDeleteReserved} isOwned={data.userName === user.name}/>
                                 <Divider />
                             </li>
                         ) 
@@ -53,7 +52,7 @@ export default async function MyReservationPage() {
                     filteredRecurringData.map((data, index) => {
                         return (
                             <li key={index}>
-                                <RecurringReservationInfo reservedData={data} onDeleteReserved={onDeleteRecurringReserved} isOwned={data.userName === user.userName}/>
+                                <RecurringReservationInfo reservedData={data} onDeleteReserved={onDeleteRecurringReserved} isOwned={data.userName === user.name}/>
                                 <Divider />
                             </li>
                         ) 

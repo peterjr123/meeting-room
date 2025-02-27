@@ -1,4 +1,4 @@
-import { AppstoreOutlined, HomeOutlined, SnippetsOutlined, SettingOutlined, UsergroupAddOutlined, FileSearchOutlined, TeamOutlined, ClusterOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, HomeOutlined, SnippetsOutlined, SettingOutlined, UsergroupAddOutlined, FileSearchOutlined, TeamOutlined, ClusterOutlined, IdcardOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import Link from 'next/link';
@@ -60,6 +60,11 @@ const items: MenuItem[] = [
                 key: 'users',
                 label: <Link href='/users'>Users</Link>,
                 icon: <TeamOutlined />
+            },
+            {
+                key: 'departments',
+                label: <Link href='/dept'>Departments</Link>,
+                icon: <IdcardOutlined />
             },
         ]
     }

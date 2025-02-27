@@ -54,7 +54,7 @@ export default function FormCard({ reservationInfo, onSubmitReservation, selecte
 function convertToRecurringFormat(data: ReservationFormData, selectedDate: Dayjs): ReccuringReservationData {
     return {
         id: -1,
-        userId: "",
+        userId: -1,
         dayInWeek: getDayInWeek(selectedDate),
         ...data
     }

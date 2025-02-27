@@ -1,16 +1,17 @@
 import Reservation from "./reservation";
-import { fetchReservationData, createReservationData, getCurrentUserInfo, fetchRoomData, createRecurringReservationData, fetchFollowingReservationData, fetchRecurringReservationData, onRequestReservedData } from "../lib/data/api";
+import { fetchReservationData, createReservationData, fetchRoomData, createRecurringReservationData, fetchFollowingReservationData, fetchRecurringReservationData, onRequestReservedData } from "../lib/data/api";
 import { ReccuringReservationData, ReservationFormData, ReservedData, TimeString } from "../lib/data/type";
 import { notFound, redirect } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
 import { convertDayjsToDateString } from "../lib/utils";
+import { getUser } from "../lib/session/api";
 
 export default async function dashboard() {
     const reservations = await onRequestReservedData(convertDayjsToDateString(dayjs()));
     if (!reservations) notFound();
     const roomData = await fetchRoomData();
     if (!roomData) notFound();
-    const user = await getCurrentUserInfo();
+    const user = await getUser()
     if (!user) redirect("/");
     
 
@@ -24,8 +25,8 @@ export default async function dashboard() {
                 ...data,
                 startTime: data.startTime as TimeString,
                 endTime: data.endTime as TimeString,
-                userId: user.userId as string,
-                userName: user.userName as string,
+                userId: user.id,
+                userName: user.name as string,
             });
             if (!result) {
                 // validation failed
@@ -40,7 +41,7 @@ export default async function dashboard() {
             const data = formData as ReccuringReservationData
             const result = await createRecurringReservationData({
                 ...data,
-                userId: user.userId as string,
+                userId: user.userId,
                 userName: user.userName as string,
             })
             if (!result) {
@@ -56,7 +57,7 @@ export default async function dashboard() {
 
     return (
         <div className="h-full">
-            <Reservation userName={user.userName} createReservationAction={createReservation} meetingRooms={roomData.map((data) => data.name)} initialReservedData={reservations}></Reservation>
+            <Reservation userName={user.name} createReservationAction={createReservation} meetingRooms={roomData.map((data) => data.name)} initialReservedData={reservations}></Reservation>
         </div>
     );
 }

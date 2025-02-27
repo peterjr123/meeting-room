@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useReducer } from "react";
-import { Table } from "antd";
+import { Button, Table } from "antd";
 
 import { compareTime, converToDuration } from "@/app/lib/utils";
 import { isTimeBetweenIncludeEdge } from "@/app/lib/utils";
@@ -23,14 +23,14 @@ const initialValue: SelectedCell = {
   room: "initialValue",
 }
 const initialCellStatus: CellStatus = {
-  selectedStartCell: { ...initialValue }, 
+  selectedStartCell: { ...initialValue },
   selectedEndCell: { ...initialValue },
   hoveringCell: { ...initialValue },
 }
 
 export default function CustomTable({ onSelectReservation, reservedData, meetingRooms }:
   {
-    onSelectReservation: (data: SelectedTableData)=> void,
+    onSelectReservation: (data: SelectedTableData) => void,
     reservedData: TableReservedData[],
     meetingRooms: string[]
   }
@@ -47,7 +47,6 @@ export default function CustomTable({ onSelectReservation, reservedData, meeting
   function TableCell({ children, time, room, reserved }:
     { children: React.ReactNode, time: TimeString, room: string, reserved: boolean }) {
     const onSelectTime = (e: any) => {
-      e.stopPropagation();
       // 이미 예약된 시간 위에 클릭하는 경우
       if (isClickOnReservedCell(reservedData, time, room))
         return;
@@ -92,14 +91,15 @@ export default function CustomTable({ onSelectReservation, reservedData, meeting
     const bgColor = selectBgColor(reserved, cellState, time, room);
 
     return (
+
       <div className={`${bgColor} min-w-4 min-h-6 z-20 hover:bg-gray-300`}
         tabIndex={0}
         onClick={onSelectTime}
-        onMouseDown={(e) => e.preventDefault()}
         onMouseEnter={onHoverIn}
       >
         {children}
       </div>
+
     );
   }
 
